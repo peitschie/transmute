@@ -1,0 +1,115 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{1FA8F517-F6E0-433F-AD19-E38F134E5DD1}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Transmute</RootNamespace>
+    <AssemblyName>Transmute</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\..\..\Output\All\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\..\..\..\Output\All\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Exceptions\MapperNotInitializedException.cs" />
+    <Compile Include="Exceptions\MapperInitializedException.cs" />
+    <Compile Include="IBidirectionMap.cs" />
+    <Compile Include="Internal\FastMemberAccessor\FuncBasedAccessor.cs" />
+    <Compile Include="Internal\FastMemberAccessor\MemberAccessors.cs" />
+    <Compile Include="Internal\FastMemberAccessor\PropertyAccessor.cs" />
+    <Compile Include="Internal\IAvailablePropertiesClass.cs" />
+    <Compile Include="Internal\OneWayMapAction.cs" />
+    <Compile Include="Internal\PrioritisedListEntry.cs" />
+    <Compile Include="Internal\FastMemberAccessor\FieldAccessor.cs" />
+    <Compile Include="Internal\RequiredMapEntry.cs" />
+    <Compile Include="IPriorityList.cs" />
+    <Compile Include="Internal\PriorityList.cs" />
+    <Compile Include="Maps\MapNullableToNullable.cs" />
+    <Compile Include="Maps\IInitializableMap.cs" />
+    <Compile Include="TwoWayMap.cs" />
+    <Compile Include="Internal\Utils\MemberInfoExtensions.cs" />
+    <Compile Include="Internal\Utils\MemberExpressions.cs" />
+    <Compile Include="Delegates.cs" />
+    <Compile Include="Exceptions\DuplicateMapperException.cs" />
+    <Compile Include="IMemberResolver.cs" />
+    <Compile Include="Internal\FastMemberAccessor\IMemberAccessor.cs" />
+    <Compile Include="Internal\Utils\OptimizationUtils.cs" />
+    <Compile Include="Internal\TypeDictionary.cs" />
+    <Compile Include="Internal\Utils\StringUtils.cs" />
+    <Compile Include="IResourceMapper.cs" />
+    <Compile Include="ITwoWayMap.cs" />
+    <Compile Include="MapHelpers.cs" />
+    <Compile Include="OneWayMap.cs" />
+    <Compile Include="Exceptions\MappingException.cs" />
+    <Compile Include="Maps\IOverriddableTypeMap.cs" />
+    <Compile Include="Internal\IMemberConsumer.cs" />
+    <Compile Include="Internal\DefaultMemberConsumer.cs" />
+    <Compile Include="Maps\ITypeSpecificMap.cs" />
+    <Compile Include="Exceptions\MemberMappingException.cs" />
+    <Compile Include="MemberResolver\IgnoreCaseNameMatcher.cs" />
+    <Compile Include="Internal\IgnoredSetter.cs" />
+    <Compile Include="Internal\IMapper.cs" />
+    <Compile Include="Internal\MappingCollection.cs" />
+    <Compile Include="Internal\MemberSetter.cs" />
+    <Compile Include="IMappingCollection.cs" />
+    <Compile Include="IOneWayMap.cs" />
+    <Compile Include="Exceptions\MapperException.cs" />
+    <Compile Include="Internal\MapperUtils.cs" />
+    <Compile Include="Maps\ITypeMap.cs" />
+    <Compile Include="Maps\MapArray.cs" />
+    <Compile Include="Maps\MapByVal.cs" />
+    <Compile Include="Maps\MapEnum.cs" />
+    <Compile Include="Maps\MapList.cs" />
+    <Compile Include="Maps\MapNonNullableToNullable.cs" />
+    <Compile Include="Maps\MapObject.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="..\..\..\..\Version\Common_AssemblyInfo.cs">
+      <Link>Properties\Common_AssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Version\Default_AssemblyFileVersion.cs">
+      <Link>Properties\Default_AssemblyFileVersion.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Version\Global_AssemblyVersion.cs">
+      <Link>Properties\Global_AssemblyVersion.cs</Link>
+    </Compile>
+    <Compile Include="ResourceMapper.cs" />
+    <Compile Include="Exceptions\UnmappedMembersException.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

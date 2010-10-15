@@ -1,0 +1,241 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.50727</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{D9E83D2D-9F3D-4594-B978-9853400F2AC7}</ProjectGuid>
+    <ProjectTypeGuids>{A1591282-1198-4647-A2B1-27E5FF5F6F3B};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Transmute.Silverlight</RootNamespace>
+    <AssemblyName>Transmute.Silverlight</AssemblyName>
+    <TargetFrameworkIdentifier>Silverlight</TargetFrameworkIdentifier>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <SilverlightVersion>$(TargetFrameworkVersion)</SilverlightVersion>
+    <SilverlightApplication>false</SilverlightApplication>
+    <ValidateXaml>true</ValidateXaml>
+    <ThrowErrorsInValidation>true</ThrowErrorsInValidation>
+  </PropertyGroup>
+  <!-- This property group is only here to support building this project using the 
+       MSBuild 3.5 toolset. In order to work correctly with this older toolset, it needs 
+       to set the TargetFrameworkVersion to v3.5 -->
+  <PropertyGroup Condition="'$(MSBuildToolsVersion)' == '3.5'">
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\..\..\Output\Silverlight\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;SILVERLIGHT</DefineConstants>
+    <NoStdLib>true</NoStdLib>
+    <NoConfig>true</NoConfig>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\..\..\..\Output\Silverlight\</OutputPath>
+    <DefineConstants>TRACE;SILVERLIGHT</DefineConstants>
+    <NoStdLib>true</NoStdLib>
+    <NoConfig>true</NoConfig>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="mscorlib" />
+    <Reference Include="System.Windows" />
+    <Reference Include="system" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Net" />
+    <Reference Include="System.Windows.Browser" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\..\..\Version\Common_AssemblyInfo.cs">
+      <Link>Properties\Common_AssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Version\Default_AssemblyFileVersion.cs">
+      <Link>Properties\Default_AssemblyFileVersion.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Version\Silverlight_AssemblyVersion.cs">
+      <Link>Properties\Silverlight_AssemblyVersion.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\Delegates.cs">
+      <Link>Delegates.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\Exceptions\DuplicateMapperException.cs">
+      <Link>Exceptions\DuplicateMapperException.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\Exceptions\MapperException.cs">
+      <Link>Exceptions\MapperException.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\Exceptions\MapperInitializedException.cs">
+      <Link>Exceptions\MapperInitializedException.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\Exceptions\MapperNotInitializedException.cs">
+      <Link>Exceptions\MapperNotInitializedException.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\Exceptions\MappingException.cs">
+      <Link>Exceptions\MappingException.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\Exceptions\MemberMappingException.cs">
+      <Link>Exceptions\MemberMappingException.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\Exceptions\UnmappedMembersException.cs">
+      <Link>Exceptions\UnmappedMembersException.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\IBidirectionMap.cs">
+      <Link>IBidirectionMap.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\IMappingCollection.cs">
+      <Link>IMappingCollection.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\IMemberResolver.cs">
+      <Link>IMemberResolver.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\Internal\DefaultMemberConsumer.cs">
+      <Link>Internal\DefaultMemberConsumer.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\Internal\FastMemberAccessor\ChainingAccessor.cs">
+      <Link>Internal\FastMemberAccessor\ChainingAccessor.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\Internal\FastMemberAccessor\FieldAccessor.cs">
+      <Link>Internal\FastMemberAccessor\FieldAccessor.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\Internal\FastMemberAccessor\IMemberAccessor.cs">
+      <Link>Internal\FastMemberAccessor\IMemberAccessor.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\Internal\FastMemberAccessor\MemberAccessors.cs">
+      <Link>Internal\FastMemberAccessor\MemberAccessors.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\Internal\FastMemberAccessor\PropertyAccessor.cs">
+      <Link>Internal\FastMemberAccessor\PropertyAccessor.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\Internal\IgnoredSetter.cs">
+      <Link>Internal\IgnoredSetter.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\Internal\IMemberConsumer.cs">
+      <Link>Internal\IMemberConsumer.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\Internal\IMapper.cs">
+      <Link>Internal\IMapper.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\Internal\MapperUtils.cs">
+      <Link>Internal\MapperUtils.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\Internal\MappingCollection.cs">
+      <Link>Internal\MappingCollection.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\Internal\MemberSetter.cs">
+      <Link>Internal\MemberSetter.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\Internal\OneWayMapAction.cs">
+      <Link>Internal\OneWayMapAction.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\Internal\PrioritisedListEntry.cs">
+      <Link>Internal\PrioritisedListEntry.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\Internal\PriorityList.cs">
+      <Link>Internal\PriorityList.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\Internal\RequiredMapEntry.cs">
+      <Link>Internal\RequiredMapEntry.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\Internal\TypeDictionary.cs">
+      <Link>Internal\TypeDictionary.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\Internal\Utils\MemberExpressions.cs">
+      <Link>Internal\Utils\MemberExpressions.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\Internal\Utils\MemberInfoExtensions.cs">
+      <Link>Internal\Utils\MemberInfoExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\Internal\Utils\OptimizationUtils.cs">
+      <Link>Internal\Utils\OptimizationUtils.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\Internal\Utils\StringUtils.cs">
+      <Link>Internal\Utils\StringUtils.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\IOneWayMap.cs">
+      <Link>IOneWayMap.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\IPriorityList.cs">
+      <Link>IPriorityList.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\IResourceMapper.cs">
+      <Link>IResourceMapper.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\ITwoWayMap.cs">
+      <Link>ITwoWayMap.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\MapHelpers.cs">
+      <Link>MapHelpers.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\Maps\IInitializableMap.cs">
+      <Link>Maps\IInitializableMap.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\Maps\IOverriddableTypeMap.cs">
+      <Link>Maps\IOverriddableTypeMap.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\Maps\ITypeMap.cs">
+      <Link>Maps\ITypeMap.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\Maps\ITypeSpecificMap.cs">
+      <Link>Maps\ITypeSpecificMap.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\Maps\MapArray.cs">
+      <Link>Maps\MapArray.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\Maps\MapByVal.cs">
+      <Link>Maps\MapByVal.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\Maps\MapEnum.cs">
+      <Link>Maps\MapEnum.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\Maps\MapList.cs">
+      <Link>Maps\MapList.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\Maps\MapNonNullableToNullable.cs">
+      <Link>Maps\MapNonNullableToNullable.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\Maps\MapNullableToNullable.cs">
+      <Link>Maps\MapNullableToNullable.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\Maps\MapObject.cs">
+      <Link>Maps\MapObject.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\MemberResolver\IgnoreCaseNameMatcher.cs">
+      <Link>MemberResolver\IgnoreCaseNameMatcher.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\OneWayMap.cs">
+      <Link>OneWayMap.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\ResourceMapper.cs">
+      <Link>ResourceMapper.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\TwoWayMap.cs">
+      <Link>TwoWayMap.cs</Link>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SilverlightICloneableReacharound.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Silverlight\$(SilverlightVersion)\Microsoft.Silverlight.CSharp.targets" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{A1591282-1198-4647-A2B1-27E5FF5F6F3B}">
+        <SilverlightProjectProperties />
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

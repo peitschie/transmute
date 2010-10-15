@@ -1,0 +1,145 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{FE583FE4-D71E-4F7C-9B45-51617B4313BB}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Transmute.Tests</RootNamespace>
+    <AssemblyName>Transmute.Tests</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\..\..\Output\All\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\..\..\..\Output\All\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>
+    </StartupObject>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Moq, Version=4.0.812.4, Culture=neutral, PublicKeyToken=69f491c39445e920, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Libraries\Test\Moq\Moq.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="NGineer, Version=1.0.3793.23542, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Libraries\Test\NGineer\NGineer.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="nunit.framework, Version=2.5.2.9222, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Libraries\Test\NUnit\nunit.framework.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Benchmarks.cs" />
+    <Compile Include="Conventions\OneWayMapTests.cs" />
+    <Compile Include="Integration\EnumToIntBehaviour.cs" />
+    <Compile Include="Internal\PriorityListTests.cs" />
+    <Compile Include="Internal\Utils\MemberExpressionsTests.cs" />
+    <Compile Include="Internal\Utils\MemberInfoExtensionsTests.cs" />
+    <Compile Include="Maps\MapNullableToNullableTests.cs" />
+    <Compile Include="Types\ClassWithProtectedProperties.cs" />
+    <Compile Include="Types\CustomEnum1.cs" />
+    <Compile Include="Internal\MemberSetterTests.cs" />
+    <Compile Include="Internal\IgnoredSetterTests.cs" />
+    <Compile Include="Internal\TypeDictionaryTests.cs" />
+    <Compile Include="MapHelpersTests.cs" />
+    <Compile Include="Maps\MapByValTests.cs" />
+    <Compile Include="Maps\MapEnumTests.cs" />
+    <Compile Include="Maps\MapNonNullableToNullableTests.cs" />
+    <Compile Include="Exceptions\MemberMappingExceptionTests.cs" />
+    <Compile Include="Types\CustomList.cs" />
+    <Compile Include="Maps\MapArrayTests.cs" />
+    <Compile Include="Maps\MapListTests.cs" />
+    <Compile Include="Maps\TypeMapTestBase.cs" />
+    <Compile Include="Types\DeepClassReadonly.cs" />
+    <Compile Include="Types\DeeperClass.cs" />
+    <Compile Include="Types\DomainClassComplex.cs" />
+    <Compile Include="Types\EnumDest.cs" />
+    <Compile Include="Types\EnumDestMinusOne.cs" />
+    <Compile Include="Types\EnumDestPlusOne.cs" />
+    <Compile Include="Types\EnumSrc.cs" />
+    <Compile Include="Types\IgnoreAllDefaultCreators.cs" />
+    <Compile Include="Types\MultiDest.cs" />
+    <Compile Include="Types\MultiNestedDest.cs" />
+    <Compile Include="Types\MultiSrc.cs" />
+    <Compile Include="Types\NoDefaultConstructor.cs" />
+    <Compile Include="Types\NonCloneableTestContext.cs" />
+    <Compile Include="Types\NormalPropertiesAndFields.cs" />
+    <Compile Include="Types\OverrideDefaultCreators.cs" />
+    <Compile Include="Types\ReadonlyPropertiesAndFields.cs" />
+    <Compile Include="Types\ResourceClassComplex.cs" />
+    <Compile Include="Types\ResourceClassNested.cs" />
+    <Compile Include="Types\ResourceCustomList.cs" />
+    <Compile Include="Types\DomainClassSimple.cs" />
+    <Compile Include="Types\DomainClassSimpleList.cs" />
+    <Compile Include="Types\DomainClassSimpleRecurse.cs" />
+    <Compile Include="Types\ResourceClassSimple.cs" />
+    <Compile Include="Types\ResourceClassSimpleList.cs" />
+    <Compile Include="Types\ResourceClassSimpleRecurse.cs" />
+    <Compile Include="Types\ChildClass.cs" />
+    <Compile Include="Types\DeepClass.cs" />
+    <Compile Include="Types\ClassWithSeveralProperties.cs" />
+    <Compile Include="Internal\MappingCollectionTests.cs" />
+    <Compile Include="Internal\Utils\MapperUtilsTests.cs" />
+    <Compile Include="Maps\MapObjectTests.cs" />
+    <Compile Include="ResourceMapperTests.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="..\..\..\..\Version\Common_AssemblyInfo.cs">
+      <Link>Properties\Common_AssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Version\Default_AssemblyFileVersion.cs">
+      <Link>Properties\Default_AssemblyFileVersion.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Version\Global_AssemblyVersion.cs">
+      <Link>Properties\Global_AssemblyVersion.cs</Link>
+    </Compile>
+    <Compile Include="Types\ClassWithSeveralPropertiesOverride.cs" />
+    <Compile Include="Types\CloneableTestContext.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Transmute\Transmute.csproj">
+      <Project>{1FA8F517-F6E0-433F-AD19-E38F134E5DD1}</Project>
+      <Name>Transmute</Name>
+      <Private>False</Private>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
