@@ -13,54 +13,63 @@ namespace Transmute.Internal
     {
         private class AvailablePropertiesClass : IAvailablePropertiesClass
         {
-            private readonly IList<MemberInfo> _from;
-            private readonly IList<MemberInfo> _to;
+            private readonly Func<MemberInfo[]> _from;
+            private readonly Func<MemberInfo[]> _to;
 
-            public AvailablePropertiesClass(IList<MemberInfo> from, IList<MemberInfo> to)
+            public AvailablePropertiesClass(Func<MemberInfo[]> from, Func<MemberInfo[]> to)
             {
                 _from = from;
                 _to = to;
             }
 
-            public MemberInfo[] Source { get { return _from.ToArray(); } }
-            public MemberInfo[] Destination { get { return _to.ToArray(); } }
+            public MemberInfo[] Source { get { return _from(); } }
+            public MemberInfo[] Destination { get { return _to(); } }
         }
 
+		private int _setOrder = 0;
         private readonly IResourceMapper<TContext> _mapper;
-        private readonly Dictionary<string, IMapper<TContext>> _setters;
         private readonly AvailablePropertiesClass _unmapped;
+		private readonly List<MemberEntry> _setters;
         private readonly List<MemberInfo> _fromList;
-        private readonly List<MemberInfo> _toList;
         private readonly MemberInfo[] _fromPrefix;
         private readonly MemberInfo[] _toPrefix;
 
         private bool _isAutomapped = false;
 
         public IAvailablePropertiesClass Unmapped { get { return _unmapped; } }
-        public IEnumerable<IMapper<TContext>> Setters { get { return _setters.Values; } }
+        public IEnumerable<MemberEntry> Setters { get { return _setters.Where(m => m.IsMapped).OrderBy(m => m.SetOrder); } }
         public bool UpdatesContext { get { return ContextUpdater != null; } }
         public Func<object, object, IResourceMapper<TContext>, TContext, TContext> ContextUpdater { get; private set; }
 
         public MappingCollection(IResourceMapper<TContext> mapper)
         {
-            _setters = new Dictionary<string, IMapper<TContext>>();
+        	_setters = new List<MemberEntry>();
+        	foreach (var property in typeof(TTo).GetProperties().Where(p => p.GetSetMethod() != null))
+			{
+				_setters.Add(new MemberEntry {
+						DestinationMember = new MemberInfo[]{property},
+						DestinationType = property.PropertyType,
+						IsMapped = false,
+				});
+			}
             _fromPrefix = new MemberInfo[0];
             _toPrefix = new MemberInfo[0];
             _fromList = typeof(TFrom).GetProperties().Where(p => p.GetGetMethod() != null).Cast<MemberInfo>().ToList();
-            _toList = typeof(TTo).GetProperties().Where(p => p.GetSetMethod() != null).Cast<MemberInfo>().ToList();
-            _unmapped = new AvailablePropertiesClass(_fromList, _toList);
+            _unmapped = new AvailablePropertiesClass(_fromList.ToArray, 
+				() => _setters.Where(s => !s.IsMapped).Select(s => s.DestinationMember.Last()).ToArray());
             _mapper = mapper;
         }
 
         protected MappingCollection(IResourceMapper<TContext> mapper, List<MemberInfo> toList, MemberInfo[] fromPrefix, MemberInfo[] toPrefix, Dictionary<string, IMapper<TContext>> setters)
         {
-            _fromPrefix = fromPrefix;
-            _toPrefix = toPrefix;
-            _setters = setters;
-            _fromList = typeof(TFrom).GetProperties().Where(p => p.GetGetMethod() != null).Cast<MemberInfo>().ToList();
-            _toList = toList;
-            _unmapped = new AvailablePropertiesClass(_fromList, _toList);
-            _mapper = mapper;
+        	throw new NotImplementedException();
+//            _fromPrefix = fromPrefix;
+//            _toPrefix = toPrefix;
+//            _setters = setters;
+//            _fromList = typeof(TFrom).GetProperties().Where(p => p.GetGetMethod() != null).Cast<MemberInfo>().ToList();
+//            _toList = toList;
+//            _unmapped = new AvailablePropertiesClass(_fromList, _toList);
+//            _mapper = mapper;
         }
 
         private IPriorityList<IMemberConsumer> _mapCreators;
@@ -90,30 +99,42 @@ namespace Transmute.Internal
 
         private void OverlayChild<TPropertyType, TGetterType>(Expression<Func<TTo, TPropertyType>> toExpression, Expression<Func<TFrom, TGetterType>> fromExpression)
         {
-            var toChain = toExpression.GetExpressionChain();
-            _toList.Remove(_toList.FirstOrDefault(f => f.Name == toChain[0].Name));
-            DoAutomapping(); // If automapping is not done before overlaying the root, often the end results can get VERY unexpected
-            var toList = typeof(TPropertyType).GetProperties().Where(p => p.GetSetMethod() != null).Cast<MemberInfo>().ToList();
-            var subMapper = new MappingCollection<TGetterType, TPropertyType, TContext>(_mapper, toList, fromExpression.GetExpressionChain(), toChain, _setters);
-            subMapper.DoAutomapping();
+        	throw new NotImplementedException();
+//            var toChain = toExpression.GetExpressionChain();
+//            _toList.Remove(_toList.FirstOrDefault(f => f.Name == toChain[0].Name));
+//            DoAutomapping(); // If automapping is not done before overlaying the root, often the end results can get VERY unexpected
+//            var toList = typeof(TPropertyType).GetProperties().Where(p => p.GetSetMethod() != null).Cast<MemberInfo>().ToList();
+//            var subMapper = new MappingCollection<TGetterType, TPropertyType, TContext>(_mapper, toList, fromExpression.GetExpressionChain(), toChain, _setters);
+//            subMapper.DoAutomapping();
         }
 
         private void OverlayRoot<TPropertyType, TGetterType>(Expression<Func<TTo, TPropertyType>> toExpression, Expression<Func<TFrom, TGetterType>> fromExpression)
         {
-            DoAutomapping(); // If automapping is not done before overlaying the root, often the end results can get VERY unexpected
-            var subMapper = new MappingCollection<TGetterType, TTo, TContext>(_mapper, _toList, fromExpression.GetExpressionChain(), new MemberInfo[0], _setters);
-            subMapper.DoAutomapping();
+        	throw new NotImplementedException();
+//            DoAutomapping(); // If automapping is not done before overlaying the root, often the end results can get VERY unexpected
+//            var subMapper = new MappingCollection<TGetterType, TTo, TContext>(_mapper, _toList, fromExpression.GetExpressionChain(), new MemberInfo[0], _setters);
+//            subMapper.DoAutomapping();
         }
 
         public IMappingCollection<TFrom, TTo, TContext> SetMember(MemberInfo[] member, MemberSource<TContext> getter)
         {
-            AssertIsNotLocked();
-            try
+        	AssertIsNotLocked();
+        	try
             {
-                var setter = new MemberSetter<TContext>(member, getter, _fromPrefix, _toPrefix);
-                _setters[setter.Name] = setter;
-                var name = member[0].Name;
-                _toList.Remove(_toList.FirstOrDefault(p => p.Name == name));
+        		var setter = _setters.FirstOrDefault(s => s.IsForMember(member));
+        		if (setter == null)
+				{
+        			setter = new MemberEntry { 
+						DestinationMember = member, 
+						DestinationType = member.Last().ReturnType() 
+					};
+        			_setters.Add(setter);
+				}
+        		setter.IsMapped = true;
+        		setter.SourceObjectType = MemberEntryType.Function;
+        		setter.SourceObject = getter;
+        		setter.SourceType = typeof(object);
+				setter.SetOrder = _setOrder++;
                 return this;
             }
             catch (Exception e)
@@ -241,8 +262,9 @@ namespace Transmute.Internal
         public IMappingCollection<TFrom, TTo, TContext> IgnoreMember(MemberInfo member)
         {
             AssertIsNotLocked();
-            _setters[member.Name] = new IgnoredSetter<TContext>(member);
-            _toList.Remove(_toList.FirstOrDefault(p => p.Name == member.Name));
+			var setter = _setters.First(s => s.IsForMember(member));
+			setter.IsMapped = true;
+			setter.SetOrder = _setOrder++;
             return this;
         }
 
@@ -313,9 +335,10 @@ namespace Transmute.Internal
 
         public void VerifyMap()
         {
-            if (_toList.Count != 0)
+            if (_setters.Any(s => !s.IsMapped))
             {
-                throw new UnmappedMembersException(typeof(TFrom), typeof(TTo), _toList);
+                throw new UnmappedMembersException(typeof(TFrom), typeof(TTo), 
+					_setters.Where(s => !s.IsMapped).Select(s => s.DestinationMember.Last()).ToList());
             }
         }
 
