@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Transmute.Silverlight", "Transmute.Silverlight\Transmute.Silverlight.csproj", "{D9E83D2D-9F3D-4594-B978-9853400F2AC7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Transmute.Tests", "Tests\Transmute.Tests.csproj", "{FE583FE4-D71E-4F7C-9B45-51617B4313BB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Transmute", "Transmute\Transmute.csproj", "{1FA8F517-F6E0-433F-AD19-E38F134E5DD1}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1FA8F517-F6E0-433F-AD19-E38F134E5DD1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1FA8F517-F6E0-433F-AD19-E38F134E5DD1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1FA8F517-F6E0-433F-AD19-E38F134E5DD1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1FA8F517-F6E0-433F-AD19-E38F134E5DD1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D9E83D2D-9F3D-4594-B978-9853400F2AC7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D9E83D2D-9F3D-4594-B978-9853400F2AC7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D9E83D2D-9F3D-4594-B978-9853400F2AC7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D9E83D2D-9F3D-4594-B978-9853400F2AC7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FE583FE4-D71E-4F7C-9B45-51617B4313BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE583FE4-D71E-4F7C-9B45-51617B4313BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FE583FE4-D71E-4F7C-9B45-51617B4313BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FE583FE4-D71E-4F7C-9B45-51617B4313BB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = Transmute.Silverlight\Transmute.Silverlight.csproj
+	EndGlobalSection
+EndGlobal

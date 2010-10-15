@@ -91,4 +91,14 @@ namespace Transmute.Tests.Maps
             }
         }
     }
+	
+	public static class DiagnosticTimerExtension
+	{
+		public static void Restart(this Stopwatch stopwatch)
+		{
+			stopwatch.Stop();
+			stopwatch.Reset();
+			stopwatch.Start();
+		}
+	}
 }

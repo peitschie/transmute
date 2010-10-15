@@ -34,7 +34,7 @@ namespace Transmute.Internal
             else
             {
                 _toAccessor = to.CreateConstructingAccessorChain<TContext>();
-                _name = string.Join(".", to.Select(p => p.Name));
+                _name = string.Join(".", to.Select(p => p.Name).ToArray());
             }
             if (fromPrefix != null && fromPrefix.Length > 0)
             {

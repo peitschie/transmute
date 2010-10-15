@@ -22,7 +22,7 @@ namespace Transmute.Exceptions
         private static string ToString(Type to, Type from, IEnumerable<MemberInfo> unmappedMembers)
         {
             return string.Format("One or more properties on {0} have no setters defined when mapped from {1}.  These should be explicitly ignored if unused.  Properties: {2}",
-                to, from, string.Join(", ", unmappedMembers.Select(p => p.Name)));
+                to, from, string.Join(", ", unmappedMembers.Select(p => p.Name).ToArray()));
         }
     }
 }

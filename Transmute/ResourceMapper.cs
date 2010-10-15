@@ -361,7 +361,7 @@ namespace Transmute
                     foreach (var missingMap in missingMaps)
                     {
                         reportString.AppendLine(string.Format("{0} to {1}: Required by {2}", missingMap.Type1, 
-                            missingMap.Type2, string.Join(", ", missingMap.Messages)));    
+                            missingMap.Type2, string.Join(", ", missingMap.Messages.ToArray())));    
                     }
                     throw new MapperException(string.Format("Unable to complete maps.  One or more required maps could not be found.\n{0}", reportString));
                 }
