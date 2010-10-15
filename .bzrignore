@@ -1,3 +1,7 @@
 Transmute.Silverlight/obj
 Transmute.userprefs
 *.pidb
+Output
+Tests/obj
+Transmute/obj
+TestResult.xml
