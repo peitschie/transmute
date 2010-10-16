@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Transmute.Internal;
+using System.Reflection;
 
 namespace Transmute.Maps
 {
@@ -22,21 +23,49 @@ namespace Transmute.Maps
 
         public void Initialize()
         {
-                if (!Initialized)
+            if (!Initialized)
             {
-                        var mappingCollection = new MappingCollection<TFrom, TTo, TContext>(_mapper);
-                        foreach (var @override in _override)
+                var mappingCollection = new MappingCollection<TFrom, TTo, TContext>(_mapper);
+                foreach (var @override in _override)
                 {
-                                @override(mappingCollection);
-                        }
-                        mappingCollection.DoAutomapping();
-                        mappingCollection.VerifyMap();
-                        foreach (var setter in mappingCollection.Setters.Where(s => s.SourceObject != null))
-                                {
-                                _setters.Add(new MemberSetter<TContext>(
-                                                        setter.DestinationMember, 
-                                                        ((MemberSource<TContext>)setter.SourceObject)).GenerateCopyValueCall());
-                                }
+                    @override(mappingCollection);
+                }
+                mappingCollection.DoAutomapping();
+                mappingCollection.VerifyMap();
+                foreach (var iteratingSetter in mappingCollection.Setters.Where(s => s.SourceObject != null))
+                {
+                    var setter = iteratingSetter;
+                    MemberSetterAction<TContext> action;
+                    if(setter.Remap)
+                    {
+                        _mapper.RequireOneWayMap(setter.SourceType, setter.DestinationType, typeof(TFrom), typeof(TTo));
+                    }
+                    switch(setter.SourceObjectType)
+                    {
+                        case MemberEntryType.Function:
+                            action = new MemberSetter<TContext>(setter.DestinationMember,
+                                ((MemberSource<TContext>)setter.SourceObject)).GenerateCopyValueCall();
+                            break;
+                        case MemberEntryType.Member:
+                            var toAccessor = MapperUtils.CreateAccessorChain(setter.DestinationMember);
+                            var fromAccessor = MapperUtils.CreateAccessorChain((MemberInfo[])setter.SourceObject);
+                            if(setter.Remap)
+                            {
+                                action = new MemberSetter<TContext>(setter.DestinationMember,
+                                    (from, to, mapper, context) => mapper.Map(setter.SourceType, setter.DestinationType,
+                                        fromAccessor.Get(from), toAccessor.Get(to), context)).GenerateCopyValueCall();
+                            }
+                            else
+                            {
+                                action = new MemberSetter<TContext>(setter.DestinationMember,
+                                    (from, to, mapper, context) => fromAccessor.Get(from)).GenerateCopyValueCall();
+                            }
+                            break;
+                        default:
+                            throw new InvalidCastException();
+                    }
+                    _setters.Add(action);
+                }
                 _override.Clear();
 
                 var generatedStatements = GenerateMapStatement(_setters);

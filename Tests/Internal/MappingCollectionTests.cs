@@ -33,9 +33,9 @@ namespace Transmute.Tests.Internal
         [Test]
         public void SetOrder_IsPreserved()
         {
-                new ClassWithSeveralPropertiesNullableOverride<CloneableTestContext>().OverrideMapping(_collection);
-                Assert.AreEqual(ClassWithSeveralPropertiesOverride<CloneableTestContext>.PropertySetOrder, 
-                                _collection.Setters.Where(m => m.IsMapped).OrderBy(m => m.SetOrder).Select(m => m.DestinationMember.Last().Name));
+            new ClassWithSeveralPropertiesNullableOverride<CloneableTestContext>().OverrideMapping(_collection);
+            Assert.AreEqual(ClassWithSeveralPropertiesOverride<CloneableTestContext>.PropertySetOrder,
+                            _collection.Setters.Where(m => m.IsMapped).OrderBy(m => m.SetOrder).Select(m => m.DestinationMember.Last().Name));
         }
 
         [Test]
@@ -117,7 +117,6 @@ namespace Transmute.Tests.Internal
         [Test]
         public void Set_ExplicitConversion_Expression_Expression_Int_To_NullableInt_NoException()
         {
-            _mapper.Setup(c => c.CanMap(typeof (int?), typeof (int))).Returns(true);
             var toMember = GetDestInfo(c => c.Property1);
             var fromMember = GetSrcInfo(c => c.Property1);
             _collection.Set(to => to.Property1, from => from.Property1, true);
@@ -128,7 +127,6 @@ namespace Transmute.Tests.Internal
         [Test]
         public void Set_ExplicitConversion_Expression_Expression_FromChildProperty_NoException()
         {
-            _mapper.Setup(c => c.CanMap(typeof(string), typeof(int))).Returns(true);
             var toMember = GetDestInfo(c => c.Property1);
             var fromMember = GetSrcInfo(c => c.Child);
             _collection.Set(to => to.Property1, from => from.Child.String, true);
@@ -166,7 +164,6 @@ namespace Transmute.Tests.Internal
         [Test]
         public void Set_MemberInfo_To_MemberInfo()
         {
-            _mapper.Setup(c => c.CanMap(typeof(int?), typeof(ChildClass))).Returns(true);
             _collection.SetMember(GetDestInfo(c => c.Child),GetSrcInfo(c1 => c1.Property1));
             VerifySettersAndAvailable(GetDestInfo(c => c.Child));
         }
@@ -174,10 +171,8 @@ namespace Transmute.Tests.Internal
         [Test]
         public void Set_MemberInfo_To_MemberSource_ThrowsIfMemberIsNull()
         {
-            _mapper.Setup(c => c.CanMap(typeof(int?), typeof(ChildClass))).Returns(true);
-            var exception = Assert.Throws<MemberMappingException>(() => _collection.SetMember((MemberInfo[])null, 
+            Assert.Throws<ArgumentNullException>(() => _collection.SetMember((MemberInfo[])null,
                 (from, to, mapper, context) => GetSrcInfo(c1 => c1.Property1)));
-            Assert.IsNull(exception.ToMember);
         }
 
         [Test]
@@ -218,7 +213,6 @@ namespace Transmute.Tests.Internal
         [Test]
         public void Set_Expression_To_Expression_Func_WithTypeRemap()
         {
-                        _mapper.Setup(c => c.CanMap(typeof(string), typeof(int))).Returns(true);
             _collection.Set(to => to.Property2, from => (from.Property2 + 1).ToString(), true);
             VerifySettersAndAvailable(GetDestInfo(c => c.Property2));
         }
@@ -226,7 +220,6 @@ namespace Transmute.Tests.Internal
         [Test]
         public void Set_Expression_To_Func_WithConversion()
         {
-                        _mapper.Setup(c => c.CanMap(typeof(long), typeof(int))).Returns(true);
             _collection.Set(to => to.Property2, (from, to, mapper, context) => (long)from.Property2+1, true);
             VerifySettersAndAvailable(GetDestInfo(c => c.Property2));
         }
@@ -236,14 +229,6 @@ namespace Transmute.Tests.Internal
         {
             _collection.Set(to => to.Child, (from, to, mapper, context) => new ChildClass{String = "Hello!"});
             VerifySettersAndAvailable(GetDestInfo(c => c.Child));
-        }
-
-        [Test]
-        public void Set_Expression_To_Func_WithConversion_NoMappingAvailable()
-        {
-            _mapper.Setup(c => c.CanMap(typeof(int), typeof(int))).Returns(false);
-            var exception = Assert.Throws<MemberMappingException>(() => _collection.Set(to => to.Property2, (from, to, mapper, context) => from.Property2, true));
-            Assert.AreEqual(GetDestInfo(c => c.Property2), exception.ToMember);
         }
 
         [Test]
@@ -391,7 +376,7 @@ namespace Transmute.Tests.Internal
         }
 
         [Test]
-                [Ignore("Overlay functionality disabled")]
+        [Ignore("Overlay functionality disabled")]
         public void Overlay_Root_To_Expression()
         {
             var collection = new MappingCollection<ResourceClassNested, DomainClassSimple, CloneableTestContext>(_mapper.Object);
@@ -400,7 +385,7 @@ namespace Transmute.Tests.Internal
         }
 
         [Test]
-                [Ignore("Overlay functionality disabled")]
+        [Ignore("Overlay functionality disabled")]
         public void Overlay_Root_To_Expression_MultipleSources()
         {
             var collection = new MappingCollection<MultiSrc, MultiDest, CloneableTestContext>(_mapper.Object);
@@ -411,7 +396,7 @@ namespace Transmute.Tests.Internal
         }
 
         [Test]
-                [Ignore("Overlay functionality disabled")]
+        [Ignore("Overlay functionality disabled")]
         public void Overlay_Root_To_Expression_LocksFurtherSettersBeingSpecified()
         {
             _mapper.Setup(m => m.MemberConsumers).Returns(new PriorityList<IMemberConsumer> { new DefaultMemberConsumer() });
@@ -422,7 +407,7 @@ namespace Transmute.Tests.Internal
         }
 
         [Test]
-                [Ignore("Overlay functionality disabled")]
+        [Ignore("Overlay functionality disabled")]
         public void Overlay_Expression_To_Expression()
         {
             var collection = new MappingCollection<MultiSrc, MultiNestedDest, CloneableTestContext>(_mapper.Object);
@@ -433,7 +418,7 @@ namespace Transmute.Tests.Internal
         }
 
         [Test]
-                [Ignore("Overlay functionality disabled")]
+        [Ignore("Overlay functionality disabled")]
         public void Overlay_Expression_To_Expression_Multiple()
         {
             var collection = new MappingCollection<MultiSrc, MultiNestedDest, CloneableTestContext>(_mapper.Object);
