@@ -26,10 +26,10 @@ namespace Transmute.Internal
             public MemberInfo[] Destination { get { return _to(); } }
         }
 
-		private int _setOrder = 0;
+        private int _setOrder = 0;
         private readonly IResourceMapper<TContext> _mapper;
         private readonly AvailablePropertiesClass _unmapped;
-		private readonly List<MemberEntry> _setters;
+        private readonly List<MemberEntry> _setters;
         private readonly List<MemberInfo> _fromList;
         private readonly MemberInfo[] _fromPrefix;
         private readonly MemberInfo[] _toPrefix;
@@ -43,26 +43,26 @@ namespace Transmute.Internal
 
         public MappingCollection(IResourceMapper<TContext> mapper)
         {
-        	_setters = new List<MemberEntry>();
-        	foreach (var property in typeof(TTo).GetProperties().Where(p => p.GetSetMethod() != null))
-			{
-				_setters.Add(new MemberEntry {
-						DestinationMember = new MemberInfo[]{property},
-						DestinationType = property.PropertyType,
-						IsMapped = false,
-				});
-			}
+            _setters = new List<MemberEntry>();
+            foreach (var property in typeof(TTo).GetProperties().Where(p => p.GetSetMethod() != null))
+            {
+                _setters.Add(new MemberEntry {
+                        DestinationMember = new MemberInfo[]{property},
+                        DestinationType = property.PropertyType,
+                        IsMapped = false,
+                });
+            }
             _fromPrefix = new MemberInfo[0];
             _toPrefix = new MemberInfo[0];
             _fromList = typeof(TFrom).GetProperties().Where(p => p.GetGetMethod() != null).Cast<MemberInfo>().ToList();
             _unmapped = new AvailablePropertiesClass(_fromList.ToArray, 
-				() => _setters.Where(s => !s.IsMapped).Select(s => s.DestinationMember.Last()).ToArray());
+                () => _setters.Where(s => !s.IsMapped).Select(s => s.DestinationMember.Last()).ToArray());
             _mapper = mapper;
         }
 
         protected MappingCollection(IResourceMapper<TContext> mapper, List<MemberInfo> toList, MemberInfo[] fromPrefix, MemberInfo[] toPrefix, Dictionary<string, IMapper<TContext>> setters)
         {
-        	throw new NotImplementedException();
+            throw new NotImplementedException();
 //            _fromPrefix = fromPrefix;
 //            _toPrefix = toPrefix;
 //            _setters = setters;
@@ -99,7 +99,7 @@ namespace Transmute.Internal
 
         private void OverlayChild<TPropertyType, TGetterType>(Expression<Func<TTo, TPropertyType>> toExpression, Expression<Func<TFrom, TGetterType>> fromExpression)
         {
-        	throw new NotImplementedException();
+            throw new NotImplementedException();
 //            var toChain = toExpression.GetExpressionChain();
 //            _toList.Remove(_toList.FirstOrDefault(f => f.Name == toChain[0].Name));
 //            DoAutomapping(); // If automapping is not done before overlaying the root, often the end results can get VERY unexpected
@@ -110,7 +110,7 @@ namespace Transmute.Internal
 
         private void OverlayRoot<TPropertyType, TGetterType>(Expression<Func<TTo, TPropertyType>> toExpression, Expression<Func<TFrom, TGetterType>> fromExpression)
         {
-        	throw new NotImplementedException();
+            throw new NotImplementedException();
 //            DoAutomapping(); // If automapping is not done before overlaying the root, often the end results can get VERY unexpected
 //            var subMapper = new MappingCollection<TGetterType, TTo, TContext>(_mapper, _toList, fromExpression.GetExpressionChain(), new MemberInfo[0], _setters);
 //            subMapper.DoAutomapping();
@@ -118,23 +118,23 @@ namespace Transmute.Internal
 
         public IMappingCollection<TFrom, TTo, TContext> SetMember(MemberInfo[] member, MemberSource<TContext> getter)
         {
-        	AssertIsNotLocked();
-        	try
+            AssertIsNotLocked();
+            try
             {
-        		var setter = _setters.FirstOrDefault(s => s.IsForMember(member));
-        		if (setter == null)
-				{
-        			setter = new MemberEntry { 
-						DestinationMember = member, 
-						DestinationType = member.Last().ReturnType() 
-					};
-        			_setters.Add(setter);
-				}
-        		setter.IsMapped = true;
-        		setter.SourceObjectType = MemberEntryType.Function;
-        		setter.SourceObject = getter;
-        		setter.SourceType = typeof(object);
-				setter.SetOrder = _setOrder++;
+                var setter = _setters.FirstOrDefault(s => s.IsForMember(member));
+                if (setter == null)
+                {
+                    setter = new MemberEntry { 
+                        DestinationMember = member, 
+                        DestinationType = member.Last().ReturnType() 
+                    };
+                    _setters.Add(setter);
+                }
+                setter.IsMapped = true;
+                setter.SourceObjectType = MemberEntryType.Function;
+                setter.SourceObject = getter;
+                setter.SourceType = typeof(object);
+                setter.SetOrder = _setOrder++;
                 return this;
             }
             catch (Exception e)
@@ -262,9 +262,9 @@ namespace Transmute.Internal
         public IMappingCollection<TFrom, TTo, TContext> IgnoreMember(MemberInfo member)
         {
             AssertIsNotLocked();
-			var setter = _setters.First(s => s.IsForMember(member));
-			setter.IsMapped = true;
-			setter.SetOrder = _setOrder++;
+            var setter = _setters.First(s => s.IsForMember(member));
+            setter.IsMapped = true;
+            setter.SetOrder = _setOrder++;
             return this;
         }
 
@@ -338,7 +338,7 @@ namespace Transmute.Internal
             if (_setters.Any(s => !s.IsMapped))
             {
                 throw new UnmappedMembersException(typeof(TFrom), typeof(TTo), 
-					_setters.Where(s => !s.IsMapped).Select(s => s.DestinationMember.Last()).ToList());
+                    _setters.Where(s => !s.IsMapped).Select(s => s.DestinationMember.Last()).ToList());
             }
         }
 

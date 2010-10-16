@@ -507,7 +507,7 @@ namespace Transmute.Tests
         }
 
         [Test]
-		[Ignore("Overlay functionality disabled")]
+                [Ignore("Overlay functionality disabled")]
         public void RegisterOneWayMap_Overlay_ConsumesMembers()
         {
             _mapper.ConvertUsing<string, int>(Convert.ToInt32);
@@ -527,7 +527,7 @@ namespace Transmute.Tests
         }
 
         [Test]
-		[Ignore("Overlay functionality disabled")]
+                [Ignore("Overlay functionality disabled")]
         public void RegisterOneWayMap_OverlayMultiple_ConsumesMembers()
         {
             _mapper.ConvertUsing<string, int>(Convert.ToInt32);
@@ -548,7 +548,7 @@ namespace Transmute.Tests
         }
 
         [Test]
-		[Ignore("Overlay functionality disabled")]
+                [Ignore("Overlay functionality disabled")]
         public void RegisterOneWayMap_Overlay_Nested_ConsumesMembers()
         {
             _mapper.ConvertUsing<string, int>(Convert.ToInt32);

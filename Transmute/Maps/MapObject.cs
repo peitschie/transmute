@@ -22,21 +22,21 @@ namespace Transmute.Maps
 
         public void Initialize()
         {
-        	if (!Initialized)
+                if (!Initialized)
             {
-        		var mappingCollection = new MappingCollection<TFrom, TTo, TContext>(_mapper);
-        		foreach (var @override in _override)
+                        var mappingCollection = new MappingCollection<TFrom, TTo, TContext>(_mapper);
+                        foreach (var @override in _override)
                 {
-        			@override(mappingCollection);
-        		}
-        		mappingCollection.DoAutomapping();
-        		mappingCollection.VerifyMap();
-        		foreach (var setter in mappingCollection.Setters.Where(s => s.SourceObject != null))
-				{
-        			_setters.Add(new MemberSetter<TContext>(
-							setter.DestinationMember, 
-							((MemberSource<TContext>)setter.SourceObject)).GenerateCopyValueCall());
-				}
+                                @override(mappingCollection);
+                        }
+                        mappingCollection.DoAutomapping();
+                        mappingCollection.VerifyMap();
+                        foreach (var setter in mappingCollection.Setters.Where(s => s.SourceObject != null))
+                                {
+                                _setters.Add(new MemberSetter<TContext>(
+                                                        setter.DestinationMember, 
+                                                        ((MemberSource<TContext>)setter.SourceObject)).GenerateCopyValueCall());
+                                }
                 _override.Clear();
 
                 var generatedStatements = GenerateMapStatement(_setters);

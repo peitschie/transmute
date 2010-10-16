@@ -33,9 +33,9 @@ namespace Transmute.Tests.Internal
         [Test]
         public void SetOrder_IsPreserved()
         {
-        	new ClassWithSeveralPropertiesNullableOverride<CloneableTestContext>().OverrideMapping(_collection);
-        	Assert.AreEqual(ClassWithSeveralPropertiesOverride<CloneableTestContext>.PropertySetOrder, 
-				_collection.Setters.Where(m => m.IsMapped).OrderBy(m => m.SetOrder).Select(m => m.DestinationMember.Last().Name));
+                new ClassWithSeveralPropertiesNullableOverride<CloneableTestContext>().OverrideMapping(_collection);
+                Assert.AreEqual(ClassWithSeveralPropertiesOverride<CloneableTestContext>.PropertySetOrder, 
+                                _collection.Setters.Where(m => m.IsMapped).OrderBy(m => m.SetOrder).Select(m => m.DestinationMember.Last().Name));
         }
 
         [Test]
@@ -48,10 +48,10 @@ namespace Transmute.Tests.Internal
 
         private void VerifySettersAndAvailable(params MemberInfo[] member)
         {
-        	foreach (var memberInfo in member)
+                foreach (var memberInfo in member)
             {
-        		Assert.IsTrue(_collection.Setters.Any(c => c.DestinationMember.Last().Name == memberInfo.Name), 
-					string.Format("{0} was not found in setters", memberInfo.Name));
+                        Assert.IsTrue(_collection.Setters.Any(c => c.DestinationMember.Last().Name == memberInfo.Name), 
+                                        string.Format("{0} was not found in setters", memberInfo.Name));
                 Assert.IsFalse(_collection.Unmapped.Destination.Any(c => c.Name == memberInfo.Name));    
             }
         }
@@ -86,12 +86,12 @@ namespace Transmute.Tests.Internal
         [Test]
         public void Set_ChainedProperty_CorrectPropertySetterCreated()
         {
-        	_collection.Set(to => to.Child.String, () => "10");
-        	var member = GetAllDestInfo(o => o.Child.String);
-        	var setter = _collection.Setters.First(m => m.IsForMember(member));
-        	Assert.IsNotNull(setter);
-        	Assert.IsTrue(setter.IsMapped);
-        	Assert.IsNotNull(setter.SourceObject);
+                _collection.Set(to => to.Child.String, () => "10");
+                var member = GetAllDestInfo(o => o.Child.String);
+                var setter = _collection.Setters.First(m => m.IsForMember(member));
+                Assert.IsNotNull(setter);
+                Assert.IsTrue(setter.IsMapped);
+                Assert.IsNotNull(setter.SourceObject);
         }
 
         [Test]
@@ -218,7 +218,7 @@ namespace Transmute.Tests.Internal
         [Test]
         public void Set_Expression_To_Expression_Func_WithTypeRemap()
         {
-			_mapper.Setup(c => c.CanMap(typeof(string), typeof(int))).Returns(true);
+                        _mapper.Setup(c => c.CanMap(typeof(string), typeof(int))).Returns(true);
             _collection.Set(to => to.Property2, from => (from.Property2 + 1).ToString(), true);
             VerifySettersAndAvailable(GetDestInfo(c => c.Property2));
         }
@@ -226,7 +226,7 @@ namespace Transmute.Tests.Internal
         [Test]
         public void Set_Expression_To_Func_WithConversion()
         {
-			_mapper.Setup(c => c.CanMap(typeof(long), typeof(int))).Returns(true);
+                        _mapper.Setup(c => c.CanMap(typeof(long), typeof(int))).Returns(true);
             _collection.Set(to => to.Property2, (from, to, mapper, context) => (long)from.Property2+1, true);
             VerifySettersAndAvailable(GetDestInfo(c => c.Property2));
         }
@@ -251,22 +251,22 @@ namespace Transmute.Tests.Internal
         {
             var member = GetDestInfo(c => c.Child);
             _collection.IgnoreMember(member);
-        	var setter = _collection.Setters.First(m => m.DestinationMember.First() == member);
-        	Assert.IsNotNull(setter);
-        	Assert.IsTrue(setter.IsMapped);
-			Assert.IsNull(setter.SourceObject);
+                var setter = _collection.Setters.First(m => m.DestinationMember.First() == member);
+                Assert.IsNotNull(setter);
+                Assert.IsTrue(setter.IsMapped);
+                        Assert.IsNull(setter.SourceObject);
             Assert.IsFalse(_collection.Unmapped.Destination.Any(c => c.Name == member.Name));
         }
 
         [Test]
         public void Ignore_Expression_AddsToSender()
         {
-        	var member = GetDestInfo(c => c.Child);
-        	_collection.Ignore(c => c.Child);
-        	var setter = _collection.Setters.First(m => m.DestinationMember.First() == member);
-        	Assert.IsNotNull(setter);
-        	Assert.IsTrue(setter.IsMapped);
-			Assert.IsNull(setter.SourceObject);
+                var member = GetDestInfo(c => c.Child);
+                _collection.Ignore(c => c.Child);
+                var setter = _collection.Setters.First(m => m.DestinationMember.First() == member);
+                Assert.IsNotNull(setter);
+                Assert.IsTrue(setter.IsMapped);
+                        Assert.IsNull(setter.SourceObject);
             Assert.IsFalse(_collection.Unmapped.Destination.Any(c => c.Name == member.Name));
         }
 
@@ -391,7 +391,7 @@ namespace Transmute.Tests.Internal
         }
 
         [Test]
-		[Ignore("Overlay functionality disabled")]
+                [Ignore("Overlay functionality disabled")]
         public void Overlay_Root_To_Expression()
         {
             var collection = new MappingCollection<ResourceClassNested, DomainClassSimple, CloneableTestContext>(_mapper.Object);
@@ -400,7 +400,7 @@ namespace Transmute.Tests.Internal
         }
 
         [Test]
-		[Ignore("Overlay functionality disabled")]
+                [Ignore("Overlay functionality disabled")]
         public void Overlay_Root_To_Expression_MultipleSources()
         {
             var collection = new MappingCollection<MultiSrc, MultiDest, CloneableTestContext>(_mapper.Object);
@@ -411,7 +411,7 @@ namespace Transmute.Tests.Internal
         }
 
         [Test]
-		[Ignore("Overlay functionality disabled")]
+                [Ignore("Overlay functionality disabled")]
         public void Overlay_Root_To_Expression_LocksFurtherSettersBeingSpecified()
         {
             _mapper.Setup(m => m.MemberConsumers).Returns(new PriorityList<IMemberConsumer> { new DefaultMemberConsumer() });
@@ -422,7 +422,7 @@ namespace Transmute.Tests.Internal
         }
 
         [Test]
-		[Ignore("Overlay functionality disabled")]
+                [Ignore("Overlay functionality disabled")]
         public void Overlay_Expression_To_Expression()
         {
             var collection = new MappingCollection<MultiSrc, MultiNestedDest, CloneableTestContext>(_mapper.Object);
@@ -433,7 +433,7 @@ namespace Transmute.Tests.Internal
         }
 
         [Test]
-		[Ignore("Overlay functionality disabled")]
+                [Ignore("Overlay functionality disabled")]
         public void Overlay_Expression_To_Expression_Multiple()
         {
             var collection = new MappingCollection<MultiSrc, MultiNestedDest, CloneableTestContext>(_mapper.Object);
