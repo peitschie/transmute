@@ -121,21 +121,12 @@ namespace Transmute.Internal
             if(member == null)
                 throw new ArgumentNullException("member");
             AssertIsNotLocked();
-            var setter = _setters.FirstOrDefault(s => s.IsForMember(member));
-            if (setter == null)
-            {
-                setter = new MemberEntry {
-                                DestinationMember = member,
-                                DestinationType = member.Last().ReturnType()
-                        };
-                _setters.Add(setter);
-            }
+            var setter = MapEntry(member);
+            setter.DestinationType = member.Last().ReturnType();
             setter.Remap = false;
-            setter.IsMapped = true;
             setter.SourceObjectType = MemberEntryType.Function;
             setter.SourceObject = getter;
-            setter.SourceType = typeof(object);
-            setter.SetOrder = _setOrder++;
+            setter.SourceType = null;
             return this;
         }
 
@@ -160,20 +151,11 @@ namespace Transmute.Internal
             if(from == null) throw new ArgumentNullException("from");
             if(fromPropertyType == null) throw new ArgumentNullException("fromPropertyType");
             AssertIsNotLocked();
-            var setter = _setters.FirstOrDefault(s => s.IsForMember(to));
-            if (setter == null)
-            {
-                setter = new MemberEntry {
-                    DestinationMember = to,
-                    DestinationType = toPropertyType
-                };
-                _setters.Add(setter);
-            }
-            setter.IsMapped = true;
+            var setter = MapEntry(to);
+            setter.DestinationType = toPropertyType;
             setter.SourceObjectType = MemberEntryType.Member;
             setter.SourceObject = from;
             setter.SourceType = fromPropertyType;
-            setter.SetOrder = _setOrder++;
             setter.Remap = remap ?? RequiresRemappingByDefault(setter.DestinationType, setter.SourceType);
             if(!setter.Remap)
             {
@@ -187,30 +169,24 @@ namespace Transmute.Internal
             return this;
         }
 
-        private IMappingCollection<TFrom, TTo, TContext> SetWithRemap<TPropertyType, TGetterType>(
-            Expression<Func<TTo, TPropertyType>> toExpression, 
-            Func<TFrom, TTo, IResourceMapper<TContext>, TContext, TGetterType> getter)
-        {
-            var members = MemberExpressions.GetExpressionChain(toExpression);
-            var toAccessor = MapperUtils.CreateAccessorChain(members);
-            return SetMember(members, (from, to, mapper, context) => mapper.Map(typeof(TGetterType), typeof(TPropertyType), getter((TFrom)from, (TTo)to, mapper, context), toAccessor.Get(to), context));
-        }
-
-        private IMappingCollection<TFrom, TTo, TContext> SetWithoutRemap<TPropertyType, TGetterType>(
-            Expression<Func<TTo, TPropertyType>> toExpression, 
-            Func<TFrom, TTo, IResourceMapper<TContext>, TContext, TGetterType> getter)
-        {
-            VerifyReturnType(typeof(TPropertyType), typeof(TGetterType));
-            var members = MemberExpressions.GetExpressionChain(toExpression);
-            return SetMember(members, (from, to, mapper, context) => getter((TFrom)from, (TTo)to, mapper, context));
-        }
-
         public IMappingCollection<TFrom, TTo, TContext> Set<TPropertyType, TGetterType>(
             Expression<Func<TTo, TPropertyType>> toExpression, 
             Func<TGetterType> getter,
             bool remap=false)
         {
-            return remap ? SetWithRemap(toExpression, (from, to, mapper, context) => getter()) : SetWithoutRemap(toExpression, (from, to, mapper, context) => getter());
+            AssertIsNotLocked();
+            var setter = MapEntry(MemberExpressions.GetExpressionChain(toExpression));
+            setter.DestinationMember = MemberExpressions.GetExpressionChain(toExpression);
+            setter.DestinationType = typeof(TPropertyType);
+            setter.SourceObject = (MemberSource<TContext>)((from, to, mapper, context) => getter());
+            setter.SourceType = typeof(TGetterType);
+            setter.SourceObjectType = MemberEntryType.Function;
+            setter.Remap = remap;
+            if(!setter.Remap)
+            {
+                VerifyReturnType(typeof(TPropertyType), typeof(TGetterType));
+            }
+            return this;
         }
 
         public IMappingCollection<TFrom, TTo, TContext> Set<TPropertyType>(
@@ -224,8 +200,19 @@ namespace Transmute.Internal
             Expression<Func<TTo, TPropertyType>> toExpression,
             Func<TFrom, TTo, IResourceMapper<TContext>, TContext, TGetterType> getter, bool? remap=false)
         {
-            remap = remap ?? RequiresRemappingByDefault(typeof(TGetterType), typeof(TPropertyType));
-            return remap.Value ? SetWithRemap(toExpression, getter) : SetWithoutRemap(toExpression, getter);
+            AssertIsNotLocked();
+            var setter = MapEntry(MemberExpressions.GetExpressionChain(toExpression));
+            setter.DestinationMember = MemberExpressions.GetExpressionChain(toExpression);
+            setter.DestinationType = typeof(TPropertyType);
+            setter.SourceObject = (MemberSource<TContext>)((from, to, mapper, context) => getter((TFrom)from, (TTo)to, mapper, context));
+            setter.SourceType = typeof(TGetterType);
+            setter.SourceObjectType = MemberEntryType.Function;
+            setter.Remap = remap ?? RequiresRemappingByDefault(typeof(TGetterType), typeof(TPropertyType));
+            if(!setter.Remap)
+            {
+                VerifyReturnType(typeof(TPropertyType), typeof(TGetterType));
+            }
+            return this;
         }
 
         public IMappingCollection<TFrom, TTo, TContext> Set<TPropertyType, TGetterType>(
@@ -255,9 +242,8 @@ namespace Transmute.Internal
         {
             if(member == null) throw new ArgumentNullException("member");
             AssertIsNotLocked();
-            var setter = _setters.First(s => s.IsForMember(member));
-            setter.IsMapped = true;
-            setter.SetOrder = _setOrder++;
+            var setter = MapEntry(member);
+            setter.SourceObject = null;
             return this;
         }
 
@@ -339,6 +325,20 @@ namespace Transmute.Internal
         {
             if (!to.IsAssignableFrom(from))
                 throw new MemberMappingException(typeof(TFrom), typeof(TTo), from, to, string.Format("Unable to assign method return type {0} to property type {1}", from, to));
+        }
+
+        private MemberEntry MapEntry(params MemberInfo[] member)
+        {
+            var setter = _setters.FirstOrDefault(s => s.IsForMember(member));
+            if (setter == null)
+            {
+                setter = new MemberEntry();
+                _setters.Add(setter);
+            }
+            setter.DestinationMember = member;
+            setter.IsMapped = true;
+            setter.SetOrder = _setOrder++;
+            return setter;
         }
     }
 }
