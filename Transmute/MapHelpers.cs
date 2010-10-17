@@ -7,6 +7,13 @@ namespace Transmute
 {
     public static class MapHelpers
     {
+        /// <summary>
+        /// Loads standard type converters from the System.Convert class.  This detects all methods that start with
+        /// "To", and have a single input and a single output
+        /// </summary>
+        /// <param name="resourceMapper">
+        /// A <see cref="IResourceMapper<TContext>"/>
+        /// </param>
         public static void LoadStandardConverters<TContext>(this IResourceMapper<TContext> resourceMapper)
         {
             resourceMapper.LoadConverters(typeof(Convert), method => method.Name.StartsWith("To") 

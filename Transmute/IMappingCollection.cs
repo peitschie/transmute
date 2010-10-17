@@ -22,6 +22,10 @@ namespace Transmute
         IMappingCollection<TFrom, TTo, TContext> IgnoreMember(MemberInfo member);
         IMappingCollection<TFrom, TTo, TContext> Ignore<TMemberType>(Expression<Func<TTo, TMemberType>> expression);
 
+        /// <summary>
+        /// Update the child context for this mapper and all maps called as part of this map.  Changes made to the
+        /// context are lost when 
+        /// </summary>
         IMappingCollection<TFrom, TTo, TContext> SetChildContext(Func<TFrom, TTo, IResourceMapper<TContext>, TContext, TContext> action);
 
         IPriorityList<IMemberConsumer> MemberConsumers { get; }

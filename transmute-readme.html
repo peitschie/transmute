@@ -516,14 +516,14 @@ Also see [[AdvancedOptions]]</pre>
 <pre>[[Introduction]]
 [[Diving In]]</pre>
 </div>
-<div title="Diving In" creator="PhilipPeitsch" modifier="PhilipPeitsch" created="201006301157" modified="201007270327" changecount="27">
+<div title="Diving In" creator="PhilipPeitsch" modifier="PhilipPeitsch" created="201006301157" modified="201010171123" changecount="32">
 <pre>The best way to demonstrate a framework is to show how it can be used.  Here is a straightforward demo showing some simple features.  The first step is to define some play entities.
 ! The Magic
 &lt;code c#&gt;
 public class SourceEntity
 {
    public int Number { get; set; }
-   public int NumberToString;
+   public int NumberToString { get; set; }
 }
 
 public class DestEntity
@@ -542,7 +542,8 @@ var destObj = new DestEntity();
 
 // Create the object mapper
 var mapper = new ResourceMapper&lt;object&gt;();
-mapper.RegisterOneWayMap&lt;SourceEntity, DestEntity&gt;();
+mapper.LoadStandardConverters(); // Load standard converters from System.Convert (e.g., int to string)
+mapper.RegisterOneWayMapping&lt;SourceEntity, DestEntity&gt;();
 mapper.InitializeMap();
 
 // Perform map
@@ -551,8 +552,7 @@ mapper.Map(sourceObj, destObj, null);
 // Assert.AreEqual(sourceObj.Number, destObj.Number);
 // Assert.AreEqual(sourceObj.NumberToString.ToString(), destObj.NumberToString);
 &lt;/code&gt;
-! The Reveal
-That looks rather magical... what actually happens here?
+! Breaking down the code
 * ''Lines 1 - 7:'' Objects are being created for the example
 * ''Lines 8:'' Create a new resource mapper
 * ''Lines 9:'' Register a one directional map from a &quot;&quot;&quot;SourceEntity type to a DestEntity&quot;&quot;&quot; type
@@ -565,15 +565,20 @@ Though Transmute will handle automatic conversion and mapping between many basic
 Initializing a map does the following:
 * Verifies all properties and fields to map between types must be mappable by the resource mapper.  In the previous example, an int must be mappable to a string
 * Creates a specific map for each specific type map.  Note that each specific map is purely one direction... a two way map is essentially made up of two one-way maps
+Map initialization is a potentially time consuming (read 10x the amount of effort to do a single map) and unthread-safe operation.  It is highly recommended that a resource mapper is created and initialized only once for the life of a program, e.g., using a static variable.  Once the mapper has been initialized, all mapping operations are thread-safe.
 !! Performing the map
-Once all maps have been initialised and verified, mapping can occur.  Internally, these maps are cached on access to speed up re-use.
+Once all maps have been initialised and verified, mapping can occur.  Internally, these maps are cached on access to speed up re-use. The following &quot;rules&quot; are used during mapping
+* A null input will result in the destination object being returned as null
+* Maps are performed in the order defined during the override setups
 !! Further reading
 For further examples, please check out the [[Examples]] page</pre>
 </div>
-<div title="Examples" creator="PhilipPeitsch" modifier="PhilipPeitsch" created="201007270236" modified="201007270311" changecount="3">
+<div title="Examples" creator="PhilipPeitsch" modifier="PhilipPeitsch" created="201007270236" modified="201010170941" changecount="4">
 <pre>* [[Registering a one-way map with overrides]]
 * [[Registering a two-way map with overrides]]
-* [[Replacing an object being mapped (or: When to use ConvertUsing)]]</pre>
+* [[Replacing an object being mapped (or: When to use ConvertUsing)]]
+* [[Passing variables from parent to child maps]]
+* [[Map a collection property to another collection property]]</pre>
 </div>
 <div title="Introduction" creator="PhilipPeitsch" modifier="PhilipPeitsch" created="201006301200" modified="201007010714" changecount="9">
 <pre>!Key Extension Concepts
@@ -595,7 +600,92 @@ For further examples, please check out the [[Examples]] page</pre>
 [[Diving In]]
 [[Examples]]</pre>
 </div>
-<div title="Registering a one-way map with overrides" creator="PhilipPeitsch" modifier="PhilipPeitsch" created="201007270242" modified="201007270325" changecount="3">
+<div title="Passing variables from parent to child maps" creator="PhilipPeitsch" modifier="PhilipPeitsch" created="201010170959" modified="201010171048" changecount="7">
+<pre>Often, parent types will need to pass variables or &quot;context&quot; data down to child maps (the other direction is not an issue, as the parent has direct access to the child property).  The way transmute allows this is through use of the context variable passed to each map. 
+! Create basic context class
+In order to help prevent difficult to debug issues with variables bleeding between maps, the context ONLY applies to the map it is defined in, and child maps called as part of the mapping operation.  This is done by enforcing context implements the ICloneable interface if modified.  The context will be cloned ONLY if a particular map modifies the context in any way.
+&lt;code c#&gt;
+public class SimpleDictionaryContext : ICloneable
+{
+    private Dictionary&lt;string, object&gt; _data = new Dictionary&lt;string, object&gt;();
+
+    public TObject Get&lt;TObject&gt;(string variable)
+    {
+        return (TObject)_data[variable];
+    }
+
+    public SimpleDictionaryContext Set(string variable, object data)
+    {
+        _data[variable] = data;
+        return this;
+    }
+
+    object ICloneable.Clone()
+    {
+        // this is only a shallow clone, so it is recommended not to store complex data
+        // structures in this dictionary as child contexts may unintentionally modify it
+        var newValue = new SimpleDictionaryContext();
+        foreach(KeyValuePair&lt;string, object&gt; pair in _data)
+        {
+            newValue._data[pair.Key] = pair.Value;
+        }
+        return newValue;
+    }
+}
+&lt;/code&gt;
+! Create types to map
+These have been carefully built to demonstrate the functionality of course...
+&lt;code c#&gt;
+public class ChildEntity
+{
+    public int ParentId { get; set; }
+    public int Variable { get; set; }
+}
+
+public class SourceEntity
+{
+    public int Id { get; set; }
+    public ChildEntity Child { get; set; }
+}
+
+public class DestEntity
+{
+    public ChildEntity Child { get; set; }
+}
+&lt;/code&gt;
+! Create the resource mapper and perform the mapping
+&lt;code c#&gt;
+// Create the object mapper
+var mapper = new ResourceMapper&lt;SimpleDictionaryContext&gt;();
+mapper.RegisterOneWayMapping&lt;SourceEntity, DestEntity&gt;(mapping =&gt;
+{
+    mapping.SetChildContext((from, to, map, context) =&gt; context.Set(&quot;ParentVariable&quot;, from.Id));
+});
+mapper.RegisterOneWayMapping&lt;ChildEntity, ChildEntity&gt;(mapping =&gt;
+{
+    mapping.Set(to =&gt; to.ParentId, (from, to, map, context) =&gt; context.Get&lt;int&gt;(&quot;ParentVariable&quot;));
+});
+mapper.InitializeMap();
+
+// Create source object
+var sourceObj = new SourceEntity {
+    Id = 10,
+    Child = new ChildEntity { Variable = 103 }
+};
+
+var destObj = new DestEntity();
+
+var mapContext = new SimpleDictionaryContext();
+
+// Perform map
+mapper.Map(sourceObj, destObj, mapContext);
+
+// Assert.Throws&lt;KeyNotFoundException&gt;(() =&gt; mapContext.Get&lt;int&gt;(&quot;ParentVariable&quot;));
+// Assert.AreEqual(sourceObj.Child.Variable, destObj.Child.Variable);
+// Assert.AreEqual(sourceObj.Id, destObj.Child.ParentId);
+&lt;/code&gt;</pre>
+</div>
+<div title="Registering a one-way map with overrides" creator="PhilipPeitsch" modifier="PhilipPeitsch" created="201007270242" modified="201010171113" changecount="5">
 <pre>! Demonstration Types
 &lt;code c#&gt;
 public class SourceEntity
@@ -614,29 +704,29 @@ public class DestEntity
 &lt;/code&gt;
 ! Registering the one-way map with custom overrides
 &lt;code c#&gt;
+// Create the object mapper
+var mapper = new ResourceMapper&lt;object&gt;();
+mapper.LoadStandardConverters(); // Load standard converters from System.Convert (e.g., int to string)
+mapper.RegisterOneWayMapping&lt;SourceEntity, DestEntity&gt;(mapping =&gt;
+{
+    mapping.Set(to =&gt; to.DifferentlyNamedNumber, from =&gt; from.Number);
+    // Directly assigns the source value to the destination value
+    mapping.Set(to =&gt; to.DifferentlyNamedNumberToString, from =&gt; from.NumberToString);
+    // There are many other variations of Set on the IMappingCollection&lt;T&gt; interface.  Check these out on the API
+    // Unspecified properties will be automapped after this point if not explicitly ignored using mapping.Ignore
+});
+mapper.InitializeMap();
+
 // Create our source object
-var sourceObj = new SourceEntity { 
+var sourceObj = new SourceEntity {
       Number = 10,
       NumberToString = -1000
    };
 
 var destObj = new DestEntity();
 
-// Create the object mapper
-var mapper = new ResourceMapper&lt;object&gt;();
-mapper.RegisterOneWayMap&lt;SourceEntity, DestEntity&gt;(mapping =&gt;
-   {
-      mapping.Set(to =&gt; to.DifferentlyNamedNumber, from =&gt; from.Number);
-      // Directly assigns the source value to the destination value
-      mapping.Set(to =&gt; to.DifferentlyNamedNumberToString, from =&gt; from.NumberToString, true);
-      // The extra 'true' signifies that further conversion is required, causing the resource mapper to call itself again to map from the source to the destination type
-      // There are many other variations of Set on the IMappingCollection&lt;T&gt; interface.  Check these out on the API
-     // Unspecified properties will be automapped after this point if not explicitly ignored using mapping.Ignore
-   });
-mapper.InitializeMap();
-
 // Perform map
-mapper.Map(sourceObj, destObj, null);
+destObj = mapper.Map(sourceObj, destObj, null);
 
 // Assert.AreEqual(sourceObj.Id, destObj.Id);
 // Assert.AreEqual(sourceObj.Number, destObj.DifferentlyNamedNumber);
@@ -644,7 +734,7 @@ mapper.Map(sourceObj, destObj, null);
 &lt;/code&gt;
 </pre>
 </div>
-<div title="Registering a two-way map with overrides" creator="PhilipPeitsch" modifier="PhilipPeitsch" created="201007270309" modified="201007270324" changecount="3">
+<div title="Registering a two-way map with overrides" creator="PhilipPeitsch" modifier="PhilipPeitsch" created="201007270309" modified="201010171123" changecount="5">
 <pre>! Demonstration Types
 &lt;code c#&gt;
 public class SourceEntity
@@ -661,7 +751,7 @@ public class DestEntity
    public string DifferentlyNamedNumberToString { get; set; }
 }
 &lt;/code&gt;
-! Registering the one-way map with custom overrides
+! Registering the two-way map with custom overrides
 &lt;code c#&gt;
 // Create our source object
 var sourceObj = new SourceEntity { 
@@ -673,17 +763,18 @@ var destObj = new DestEntity();
 
 // Create the object mapper
 var mapper = new ResourceMapper&lt;object&gt;();
-mapper.RegisterTwoWayMap&lt;SourceEntity, DestEntity&gt;(
+mapper.LoadStandardConverters(); // Load standard converters from System.Convert (e.g., int to string)
+mapper.RegisterTwoWayMapping&lt;SourceEntity, DestEntity&gt;(
    sourceToDest =&gt;
    {
       sourceToDest.Set(to =&gt; to.DifferentlyNamedNumber, from =&gt; from.Number);
-      sourceToDest.Set(to =&gt; to.DifferentlyNamedNumberToString, from =&gt; from.NumberToString, true);
+      sourceToDest.Set(to =&gt; to.DifferentlyNamedNumberToString, from =&gt; from.NumberToString);
      // Unspecified properties will be automapped after this point if not explicitly ignored using mapping.Ignore
    },
    destToSource =&gt;
    {
       destToSource.Set(to =&gt; to.Number, from =&gt; from.DifferentlyNamedNumber);
-      destToSource.Set(to =&gt; to.NumberString, from =&gt; from.DifferentlyNamedNumberToString, true);
+      destToSource.Set(to =&gt; to.NumberString, from =&gt; from.DifferentlyNamedNumberToString);
      // Unspecified properties will be automapped after this point if not explicitly ignored using mapping.Ignore
    });
 mapper.InitializeMap();
@@ -697,8 +788,8 @@ mapper.Map(sourceObj, destObj, null);
 // Perform map dest =&gt; source
 var newSourceObj = mapper.Map(destObj, new SourceEntity(), null);
 // Assert.AreEqual(destObj.Id, newSourceObj.Id);
-// Assert.AreEqual(destObj.Number, newSourceObj.DifferentlyNamedNumber);
-// Assert.AreEqual(destObj.NumberToString, newSourceObj.DifferentlyNamedNumberToString.ToString());
+// Assert.AreEqual(destObj.DifferentlyNamedNumber, newSourceObj.Number);
+// Assert.AreEqual(destObj.DifferentlyNamedNumberToString, newSourceObj.NumberToString.ToString());
 &lt;/code&gt;
 </pre>
 </div>
