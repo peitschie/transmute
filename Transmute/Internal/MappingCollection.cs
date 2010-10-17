@@ -131,7 +131,8 @@ namespace Transmute.Internal
             return Set(to, to.Last().ReturnType(), from, from.Last().ReturnType(), remap);
         }
 
-        private IMappingCollection<TFrom, TTo, TContext> Set(MemberInfo[] to, Type toPropertyType, MemberInfo[] from, Type fromPropertyType, bool? remap=null)
+        private IMappingCollection<TFrom, TTo, TContext> Set(MemberInfo[] to, Type toPropertyType,
+                                                             MemberInfo[] from, Type fromPropertyType, bool? remap=null)
         {
             if(to == null) throw new ArgumentNullException("to");
             if(toPropertyType == null) throw new ArgumentNullException("toPropertyType");
