@@ -163,7 +163,6 @@ namespace Transmute.Internal
         {
             AssertIsNotLocked();
             var setter = MapEntry(MemberExpressions.GetExpressionChain(toExpression));
-            setter.DestinationMember = MemberExpressions.GetExpressionChain(toExpression);
             setter.DestinationType = typeof(TPropertyType);
             setter.SourceObject = (MemberSource<TContext>)((from, to, mapper, context) => getter());
             setter.SourceType = typeof(TGetterType);
@@ -189,7 +188,6 @@ namespace Transmute.Internal
         {
             AssertIsNotLocked();
             var setter = MapEntry(MemberExpressions.GetExpressionChain(toExpression));
-            setter.DestinationMember = MemberExpressions.GetExpressionChain(toExpression);
             setter.DestinationType = typeof(TPropertyType);
             setter.SourceObject = (MemberSource<TContext>)((from, to, mapper, context) => getter((TFrom)from, (TTo)to, mapper, context));
             setter.SourceType = typeof(TGetterType);
