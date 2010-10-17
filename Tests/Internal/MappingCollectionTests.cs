@@ -10,6 +10,7 @@ using Transmute.Internal;
 using Transmute.Internal.Utils;
 using Transmute.MemberResolver;
 using Transmute.Tests.Types;
+using System.Collections.Generic;
 
 namespace Transmute.Tests.Internal
 {
@@ -35,7 +36,7 @@ namespace Transmute.Tests.Internal
         {
             new ClassWithSeveralPropertiesNullableOverride<CloneableTestContext>().OverrideMapping(_collection);
             Assert.AreEqual(ClassWithSeveralPropertiesOverride<CloneableTestContext>.PropertySetOrder,
-                            _collection.Setters.Where(m => m.IsMapped).OrderBy(m => m.SetOrder).Select(m => m.DestinationMember.Last().Name));
+                            _collection.Setters.Where(m => m.IsMapped).OrderBy(m => m.SetOrder).Select(m => m.DestinationMember.Last().Name).ToArray());
         }
 
         [Test]
@@ -376,7 +377,6 @@ namespace Transmute.Tests.Internal
         }
 
         [Test]
-        [Ignore("Overlay functionality disabled")]
         public void Overlay_Root_To_Expression()
         {
             var collection = new MappingCollection<ResourceClassNested, DomainClassSimple, CloneableTestContext>(_mapper.Object);
@@ -385,40 +385,26 @@ namespace Transmute.Tests.Internal
         }
 
         [Test]
-        [Ignore("Overlay functionality disabled")]
         public void Overlay_Root_To_Expression_MultipleSources()
         {
             var collection = new MappingCollection<MultiSrc, MultiDest, CloneableTestContext>(_mapper.Object);
             collection.Overlay(to => to, from => from.Src1);
             collection.Overlay(to => to, from => from.Src2);
 
-//            Assert.AreEqual(new[] { "Property1", "Property2" }, collection.Setters.Select(m => m.Name).ToArray());
+            Assert.AreEqual(new[] { "Property1", "Property2" }, ToDestinationStrings(collection.Setters));
         }
 
         [Test]
-        [Ignore("Overlay functionality disabled")]
-        public void Overlay_Root_To_Expression_LocksFurtherSettersBeingSpecified()
-        {
-            _mapper.Setup(m => m.MemberConsumers).Returns(new PriorityList<IMemberConsumer> { new DefaultMemberConsumer() });
-            _mapper.Setup(m => m.MemberResolvers).Returns(new PriorityList<IMemberResolver> { new IgnoreCaseNameMatcher() });
-            _collection.Overlay(to => to, from => from.Child);
-            
-            Assert.Throws<MapperException>(() => _collection.Ignore(to => to.Property1));
-        }
-
-        [Test]
-        [Ignore("Overlay functionality disabled")]
         public void Overlay_Expression_To_Expression()
         {
             var collection = new MappingCollection<MultiSrc, MultiNestedDest, CloneableTestContext>(_mapper.Object);
 
             collection.Overlay(to => to.Dest, from => from.Src1);
 
-//            Assert.AreEqual(new[] { "Dest.Property1" }, collection.Setters.Select(m => m.Name).ToArray());
+            Assert.AreEqual(new[] { "Dest", "Dest.Property1" }, ToDestinationStrings(collection.Setters));
         }
 
         [Test]
-        [Ignore("Overlay functionality disabled")]
         public void Overlay_Expression_To_Expression_Multiple()
         {
             var collection = new MappingCollection<MultiSrc, MultiNestedDest, CloneableTestContext>(_mapper.Object);
@@ -426,7 +412,12 @@ namespace Transmute.Tests.Internal
             collection.Overlay(to => to.Dest, from => from.Src1);
             collection.Overlay(to => to.Dest, from => from.Src2);
 
-//            Assert.AreEqual(new[] { "Dest.Property1", "Dest.Property2" }, collection.Setters.Select(m => m.Name).ToArray());
+            Assert.AreEqual(new[] { "Dest", "Dest.Property1", "Dest.Property2" }, ToDestinationStrings(collection.Setters));
+        }
+
+        private static string[] ToDestinationStrings(IEnumerable<MemberEntry> setters)
+        {
+            return setters.Select(s => string.Join(".", s.DestinationMember.Select(m => m.Name).ToArray())).ToArray();
         }
 
         private static MemberInfo[] GetAllDestInfo(Expression<Func<ClassWithSeveralPropertiesDest, object>> expression)

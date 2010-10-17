@@ -507,7 +507,6 @@ namespace Transmute.Tests
         }
 
         [Test]
-                [Ignore("Overlay functionality disabled")]
         public void RegisterOneWayMap_Overlay_ConsumesMembers()
         {
             _mapper.ConvertUsing<string, int>(Convert.ToInt32);
@@ -527,7 +526,6 @@ namespace Transmute.Tests
         }
 
         [Test]
-                [Ignore("Overlay functionality disabled")]
         public void RegisterOneWayMap_OverlayMultiple_ConsumesMembers()
         {
             _mapper.ConvertUsing<string, int>(Convert.ToInt32);
@@ -548,12 +546,15 @@ namespace Transmute.Tests
         }
 
         [Test]
-                [Ignore("Overlay functionality disabled")]
         public void RegisterOneWayMap_Overlay_Nested_ConsumesMembers()
         {
             _mapper.ConvertUsing<string, int>(Convert.ToInt32);
             _mapper.ConvertUsing<int, string>(Convert.ToString);
-            _mapper.RegisterOneWayMapping<MultiSrc, MultiNestedDest>(mapping => mapping.Overlay(to => to.Dest, from => from.Src1));
+            _mapper.RegisterOneWayMapping<MultiSrc, MultiNestedDest>(mapping =>
+            {
+                mapping.Overlay(to => to.Dest, from => from.Src1);
+                mapping.Overlay(to => to.Dest, from => from.Src2);
+            });
             _mapper.InitializeMap();
 
             var resourceObj = _builder.Build<MultiSrc>();

@@ -26,10 +26,10 @@ namespace Transmute.Internal
             public MemberInfo[] Destination { get { return _to(); } }
         }
 
-        private int _setOrder = 0;
+        private int _setOrder;
         private readonly IResourceMapper<TContext> _mapper;
         private readonly AvailablePropertiesClass _unmapped;
-        private readonly List<MemberEntry> _setters;
+        private readonly IList<MemberEntry> _setters;
         private readonly List<MemberInfo> _fromList;
         private readonly MemberInfo[] _fromPrefix;
         private readonly MemberInfo[] _toPrefix;
@@ -42,34 +42,36 @@ namespace Transmute.Internal
         public Func<object, object, IResourceMapper<TContext>, TContext, TContext> ContextUpdater { get; private set; }
 
         public MappingCollection(IResourceMapper<TContext> mapper)
+            : this(mapper, new MemberInfo[0], new MemberInfo[0], new List<MemberEntry>(), 0)
         {
-            _setters = new List<MemberEntry>();
-            foreach (var property in typeof(TTo).GetProperties().Where(p => p.GetSetMethod() != null))
+        }
+
+        protected MappingCollection(IResourceMapper<TContext> mapper,
+                                    MemberInfo[] fromPrefix,
+                                    MemberInfo[] toPrefix,
+                                    IList<MemberEntry> setters,
+                                    int setOrder)
+        {
+            _setOrder = setOrder;
+            _fromPrefix = fromPrefix;
+            _toPrefix = toPrefix;
+            _setters = setters;
+            foreach (var property in typeof(TTo).GetProperties()
+                                        .Where(p => p.GetSetMethod() != null && !_setters.Any(s => s.IsForMember(_toPrefix, p))))
             {
                 _setters.Add(new MemberEntry {
-                        DestinationMember = new MemberInfo[]{property},
+                        DestinationMember = _toPrefix.Union(new MemberInfo[]{property}).ToArray(),
                         DestinationType = property.PropertyType,
                         IsMapped = false,
                 });
             }
-            _fromPrefix = new MemberInfo[0];
-            _toPrefix = new MemberInfo[0];
             _fromList = typeof(TFrom).GetProperties().Where(p => p.GetGetMethod() != null).Cast<MemberInfo>().ToList();
             _unmapped = new AvailablePropertiesClass(_fromList.ToArray,
-                () => _setters.Where(s => !s.IsMapped).Select(s => s.DestinationMember.Last()).ToArray());
+                () => _setters.Where(s => !s.IsMapped
+                                          && s.DestinationMember.Length == _toPrefix.Length + 1
+                                          && s.IsForPrefix(_toPrefix))
+                              .Select(s => s.DestinationMember[_toPrefix.Length]).ToArray());
             _mapper = mapper;
-        }
-
-        protected MappingCollection(IResourceMapper<TContext> mapper, List<MemberInfo> toList, MemberInfo[] fromPrefix, MemberInfo[] toPrefix, Dictionary<string, IMapper<TContext>> setters)
-        {
-            throw new NotImplementedException();
-//            _fromPrefix = fromPrefix;
-//            _toPrefix = toPrefix;
-//            _setters = setters;
-//            _fromList = typeof(TFrom).GetProperties().Where(p => p.GetGetMethod() != null).Cast<MemberInfo>().ToList();
-//            _toList = toList;
-//            _unmapped = new AvailablePropertiesClass(_fromList, _toList);
-//            _mapper = mapper;
         }
 
         private IPriorityList<IMemberConsumer> _mapCreators;
@@ -84,36 +86,21 @@ namespace Transmute.Internal
             get { return _memberResolvers ?? (_memberResolvers = new PriorityList<IMemberResolver>(_mapper.MemberResolvers)); }
         }
 
-        public void Overlay<TPropertyType, TGetterType>(Expression<Func<TTo, TPropertyType>> toExpression, Expression<Func<TFrom, TGetterType>> fromExpression)
+        public void Overlay<TPropertyType, TGetterType>(Expression<Func<TTo, TPropertyType>> toExpression,
+                                                        Expression<Func<TFrom, TGetterType>> fromExpression,
+                                                        Action<IMappingCollection<TGetterType, TPropertyType, TContext>> map=null)
         {
             var toChain = toExpression.GetExpressionChain(true);
-            if(toChain.Length > 0)
+            if(toChain.Length > 0 && !IsMapped(toChain))
             {
-                OverlayChild(toExpression, fromExpression);
+                MapEntry(toChain);
             }
-            else
-            {
-                OverlayRoot(toExpression, fromExpression);
-            }
-        }
-
-        private void OverlayChild<TPropertyType, TGetterType>(Expression<Func<TTo, TPropertyType>> toExpression, Expression<Func<TFrom, TGetterType>> fromExpression)
-        {
-            throw new NotImplementedException();
-//            var toChain = toExpression.GetExpressionChain();
-//            _toList.Remove(_toList.FirstOrDefault(f => f.Name == toChain[0].Name));
-//            DoAutomapping(); // If automapping is not done before overlaying the root, often the end results can get VERY unexpected
-//            var toList = typeof(TPropertyType).GetProperties().Where(p => p.GetSetMethod() != null).Cast<MemberInfo>().ToList();
-//            var subMapper = new MappingCollection<TGetterType, TPropertyType, TContext>(_mapper, toList, fromExpression.GetExpressionChain(), toChain, _setters);
-//            subMapper.DoAutomapping();
-        }
-
-        private void OverlayRoot<TPropertyType, TGetterType>(Expression<Func<TTo, TPropertyType>> toExpression, Expression<Func<TFrom, TGetterType>> fromExpression)
-        {
-            throw new NotImplementedException();
-//            DoAutomapping(); // If automapping is not done before overlaying the root, often the end results can get VERY unexpected
-//            var subMapper = new MappingCollection<TGetterType, TTo, TContext>(_mapper, _toList, fromExpression.GetExpressionChain(), new MemberInfo[0], _setters);
-//            subMapper.DoAutomapping();
+            var subMapper = new MappingCollection<TGetterType, TPropertyType, TContext>(_mapper,
+                fromExpression.GetExpressionChain(), toChain, _setters, _setOrder);
+            if(map != null)
+                map(subMapper);
+            subMapper.DoAutomapping();
+            _setOrder = subMapper._setOrder;
         }
 
         public IMappingCollection<TFrom, TTo, TContext> SetMember(MemberInfo[] member, MemberSource<TContext> getter)
@@ -327,15 +314,21 @@ namespace Transmute.Internal
                 throw new MemberMappingException(typeof(TFrom), typeof(TTo), from, to, string.Format("Unable to assign method return type {0} to property type {1}", from, to));
         }
 
+        private bool IsMapped(params MemberInfo[] member)
+        {
+            return _setters.Any(s => s.IsForMember(_toPrefix, member) && s.IsMapped);
+        }
+
         private MemberEntry MapEntry(params MemberInfo[] member)
         {
-            var setter = _setters.FirstOrDefault(s => s.IsForMember(member));
+            var setter = _setters.FirstOrDefault(s => s.IsForMember(_toPrefix, member));
             if (setter == null)
             {
                 setter = new MemberEntry();
                 _setters.Add(setter);
             }
-            setter.DestinationMember = member;
+            setter.DestinationMember = _toPrefix.Union(member).ToArray();
+            setter.SourceRoot = _fromPrefix;
             setter.IsMapped = true;
             setter.SetOrder = _setOrder++;
             return setter;

@@ -93,7 +93,6 @@ namespace Transmute.Tests.Internal
             Assert.IsTrue(count > 800000, "To slow: {0}".With(count));
         }
 
-        [Test]
         private object Get(Type type1, Type type2)
         {
             object result;

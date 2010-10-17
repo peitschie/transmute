@@ -40,15 +40,25 @@ namespace Transmute.Maps
                     {
                         _mapper.RequireOneWayMap(setter.SourceType, setter.DestinationType, typeof(TFrom), typeof(TTo));
                     }
+                    var toAccessor = MapperUtils.CreateAccessorChain(setter.DestinationMember);
                     switch(setter.SourceObjectType)
                     {
                         case MemberEntryType.Function:
-                            action = new MemberSetter<TContext>(setter.DestinationMember,
-                                ((MemberSource<TContext>)setter.SourceObject)).GenerateCopyValueCall();
+
+                            if(setter.Remap)
+                            {
+                                action = new MemberSetter<TContext>(setter.DestinationMember,
+                                    (from, to, mapper, context) => mapper.Map(setter.SourceType, setter.DestinationType,
+                                    ((MemberSource<TContext>)setter.SourceObject)(from, to, mapper, context), toAccessor.Get(to), context)).GenerateCopyValueCall();
+                            }
+                            else
+                            {
+                                action = new MemberSetter<TContext>(setter.DestinationMember,
+                                    ((MemberSource<TContext>)setter.SourceObject)).GenerateCopyValueCall();
+                            }
                             break;
                         case MemberEntryType.Member:
-                            var toAccessor = MapperUtils.CreateAccessorChain(setter.DestinationMember);
-                            var fromAccessor = MapperUtils.CreateAccessorChain((MemberInfo[])setter.SourceObject);
+                            var fromAccessor = MapperUtils.CreateAccessorChain(setter.SourceRoot.Union((MemberInfo[])setter.SourceObject));
                             if(setter.Remap)
                             {
                                 action = new MemberSetter<TContext>(setter.DestinationMember,

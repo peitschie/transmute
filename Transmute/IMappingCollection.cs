@@ -34,6 +34,6 @@ namespace Transmute
         IMappingCollection<TFrom, TTo, TContext> RequireTwoWayMap<TType1, TType2>();
         
         IMappingCollection<TFrom, TTo, TContext> DoAutomapping();
-        void Overlay<TPropertyType, TGetterType>(Expression<Func<TTo, TPropertyType>> toExpression, Expression<Func<TFrom, TGetterType>> fromExpression);
+        void Overlay<TPropertyType, TGetterType>(Expression<Func<TTo, TPropertyType>> toExpression, Expression<Func<TFrom, TGetterType>> from, Action<IMappingCollection<TGetterType, TPropertyType, TContext>> map=null);
     }
 }

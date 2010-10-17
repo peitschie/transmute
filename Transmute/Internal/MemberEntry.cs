@@ -7,7 +7,8 @@ namespace Transmute.Internal
     {
         public MemberInfo[] DestinationMember { get; set; }
         public Type DestinationType { get; set; }
-        
+
+        public MemberInfo[] SourceRoot { get; set; }
         public Type SourceType { get; set; }
         public MemberEntryType SourceObjectType { get; set; }
         public object SourceObject { get; set; }
@@ -16,9 +17,14 @@ namespace Transmute.Internal
         public bool IsMapped { get; set; }
         public int SetOrder { get; set; }
         
-        public bool IsForMember(params MemberInfo[] member)
+        public bool IsForMember(MemberInfo[] prefix, params MemberInfo[] member)
         {
-            return DestinationMember.Select(m => m.Name).SequenceEqual(member.Select(m => m.Name)); 
+            return DestinationMember.Select(m => m.Name).SequenceEqual(prefix.Union(member).Select(m => m.Name));
+        }
+
+        public bool IsForPrefix(MemberInfo[] prefix)
+        {
+            return DestinationMember.Take(prefix.Length).Select(m => m.Name).SequenceEqual(prefix.Select(m => m.Name));
         }
     }
     
