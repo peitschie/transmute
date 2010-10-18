@@ -21,8 +21,15 @@ namespace EmitMapper.AST.Nodes
 
         public virtual void Compile(CompilationContext context)
         {
-            sourceObject.Compile(context);
-            context.Emit(OpCodes.Ldfld, fieldInfo);
+            if(sourceObject != null)
+            {
+                sourceObject.Compile(context);
+                context.Emit(OpCodes.Ldfld, fieldInfo);
+            }
+            else
+            {
+                context.Emit(OpCodes.Ldsfld, fieldInfo);
+            }
         }
     }
 

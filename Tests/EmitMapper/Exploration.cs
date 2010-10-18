@@ -5,24 +5,26 @@ using EmitMapper;
 using System.Reflection;
 using EmitMapper.AST;
 using EmitMapper.AST.Nodes;
+using System.Collections.Generic;
+using EmitMapper.AST.Interfaces;
 namespace Transmute.Tests.EmitMapper
 {
     [TestFixture]
     public class Exploration
     {
         [Test]
-        public void TestCase()
+        public void Convert_Method()
         {
-            var source = AstBuildHelper.ReadMemberRV(AstBuildHelper.ReadArgumentRA(1, typeof(DestinationObject)),
+            var source = AstBuildHelper.ReadMemberRV(AstBuildHelper.ReadArgumentRA(0, typeof(SourceObject)),
                                                                           typeof(SourceObject).GetProperty("Source"));
             var writer = AstBuildHelper.WriteMember(typeof(DestinationObject).GetProperty("Destination"),
-                                       AstBuildHelper.ReadArgumentRA(0, typeof(SourceObject)), source);
+                                       AstBuildHelper.ReadArgumentRA(1, typeof(DestinationObject)), source);
             var type = DynamicAssemblyManager.DefineMapperType("MyClassType");
             var convertMethod = type.DefineMethod("Convert",
                                                   MethodAttributes.Public | MethodAttributes.Static,
                                                   null, new Type[]{typeof(SourceObject), typeof(DestinationObject)});
-            var param1 = convertMethod.DefineParameter(1, ParameterAttributes.None, "source");
-            var param2 = convertMethod.DefineParameter(2, ParameterAttributes.None, "destination");
+            convertMethod.DefineParameter(1, ParameterAttributes.None, "source");
+            convertMethod.DefineParameter(2, ParameterAttributes.None, "destination");
             var context = new CompilationContext(convertMethod.GetILGenerator());
             writer.Compile(context);
             new AstReturnVoid().Compile(context);
@@ -35,6 +37,36 @@ namespace Transmute.Tests.EmitMapper
             type.InvokeMember("Convert", BindingFlags.InvokeMethod, null, dynamicType, new object[]{sourceObj, destinationObj});
 
             Assert.AreEqual(sourceObj.Source, destinationObj.Destination);
+        }
+
+        [Test]
+        public void Convert_WithDelegate()
+        {
+            var type = DynamicAssemblyManager.DefineMapperType("MyClassType");
+            var field = type.DefineField("Lambda", typeof(Func<int>), FieldAttributes.Static | FieldAttributes.Public);
+            Func<int> getValue = () => 10;
+            var source = AstBuildHelper.CallMethod(field.FieldType.GetMethod("Invoke", new Type[0]),
+                                                   AstBuildHelper.ReadFieldRA(null, type.GetField("Lambda")), new List<IAstStackItem>());
+            var writer = AstBuildHelper.WriteMember(typeof(DestinationObject).GetProperty("Destination"),
+                                       AstBuildHelper.ReadArgumentRA(1, typeof(DestinationObject)), source);
+
+            var convertMethod = type.DefineMethod("ConvertLambda",
+                                                  MethodAttributes.Public | MethodAttributes.Static,
+                                                  null, new Type[]{typeof(SourceObject), typeof(DestinationObject)});
+            convertMethod.DefineParameter(1, ParameterAttributes.None, "source");
+            convertMethod.DefineParameter(2, ParameterAttributes.None, "destination");
+            var context = new CompilationContext(convertMethod.GetILGenerator());
+            writer.Compile(context);
+            new AstReturnVoid().Compile(context);
+            type.CreateType();
+            DynamicAssemblyManager.SaveAssembly();
+
+            var destinationObj = new DestinationObject();
+            object dynamicType = Activator.CreateInstance(type, false);
+            type.GetField("Lambda").SetValue(dynamicType, getValue);
+            type.InvokeMember("Convert", BindingFlags.InvokeMethod, null, dynamicType, new object[]{null, destinationObj});
+
+            Assert.AreEqual(10, destinationObj.Destination);
         }
     }
 
