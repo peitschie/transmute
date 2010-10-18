@@ -11,6 +11,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyProduct("Automapping")]
 
 [assembly: InternalsVisibleTo("Transmute.Tests")]
+[assembly: InternalsVisibleTo("Transmute.Benchmark")]
 
 
 // Setting ComVisible to false makes the types in this assembly not visible 

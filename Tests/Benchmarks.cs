@@ -11,7 +11,7 @@ namespace Transmute.Tests
     [Explicit]
     public class Benchmarks
     {
-        private const int Total = 10000;
+        public const int Total = 10000;
 
         private IBuilder _builder;
         private ResourceClassComplex _resourceObj;
@@ -50,8 +50,7 @@ namespace Transmute.Tests
             */
         }
 
-        [Test]
-        public void BenchmarkTransmute()
+        public double BenchmarkTransmute()
         {
             // Resource mapper
             var mapper = new ResourceMapper<object>();
@@ -67,12 +66,17 @@ namespace Transmute.Tests
                 mapper.Map(_resourceObj, domainObj, null);
             }
             var end = DateTime.Now;
-            var totalMs = (end - start).TotalMilliseconds;
-            Assert.Pass("Mapper Conversion -  Total elapsed time: {0}ms  Total conversions: {1}  Conversions: {2}/s".With(totalMs, Total, 100 * Total / totalMs));
+            return (end - start).TotalMilliseconds;
         }
 
         [Test]
-        public void BenchmarkNative()
+        public void Peform_Transmute_Benchmark()
+        {
+            var totalMs = BenchmarkTransmute();
+            Assert.Pass("Mapper Conversion -  Total elapsed time: {0}ms  Total conversions: {1}  Conversions: {2}/s".With(totalMs, Total, 100 * Total / totalMs));
+        }
+
+        public double BenchmarkNative()
         {
             var start = DateTime.Now;
             for (int i = 0; i < Total; i++)
@@ -81,7 +85,13 @@ namespace Transmute.Tests
                 Map(_resourceObj, domainObj);
             }
             var end = DateTime.Now;
-            var totalMs = (end - start).TotalMilliseconds;
+            return (end - start).TotalMilliseconds;
+        }
+
+        [Test]
+        public void Peform_Native_Benchmark()
+        {
+            var totalMs = BenchmarkNative();
             Assert.Pass("Explicit Conversion -    Total elapsed time: {0}ms  Total conversions: {1}  Conversions: {2}/s".With(totalMs, Total, 100 * Total / totalMs));
         }
 
@@ -89,9 +99,7 @@ namespace Transmute.Tests
         {
             to.ExampleProperty = from.ExampleProperty == null ? null : new DomainClassSimple() { ExampleProperty = from.ExampleProperty.ExampleProperty};
             to.IntConversionProperty = from.IntConversionProperty.ToString();
-            //to.IntConversionProperty = from.IntConversionProperty;
             to.StringConversionProperty = int.Parse(from.StringConversionProperty);
-            //to.StringConversionProperty = from.StringConversionProperty;
             to.ExamplePropertyList = from.ExamplePropertyList == null ? null : from.ExamplePropertyList.Select(p => p == null ? null : new DomainClassSimple() { ExampleProperty = p.ExampleProperty}).ToList();
             to.ExamplePropertyArray = from.ExamplePropertyArray == null ? null : from.ExamplePropertyArray.Select(p => p == null ? null : new DomainClassSimple() { ExampleProperty = p.ExampleProperty}).ToArray();
             if (from.RecursiveExampleProperty != null)
