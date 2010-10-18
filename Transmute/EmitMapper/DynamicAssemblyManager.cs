@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Reflection.Emit;
 using System.Reflection;
-using EmitMapper.Mappers;
 
 namespace EmitMapper
 {
@@ -34,7 +33,7 @@ namespace EmitMapper
 		static DynamicAssemblyManager()
 		{
 #if !SILVERLIGHT
-            assemblyName = new AssemblyName("EmitMapperAssembly");
+            assemblyName = new AssemblyName("Transmute.EmitHelper.Dynamic");
 			assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(
 				assemblyName,
 				AssemblyBuilderAccess.RunAndSave
@@ -45,7 +44,7 @@ namespace EmitMapper
 				assemblyName.Name + ".dll",
 				true);
 #else
-            assemblyName = new AssemblyName("EmitMapperAssembly.SL");
+            assemblyName = new AssemblyName("Transmute.EmitHelper.Dynamic.SL");
             assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(
                   assemblyName,
                   AssemblyBuilderAccess.Run
@@ -63,27 +62,13 @@ namespace EmitMapper
 			return typeName;
 		}
 
-		internal static TypeBuilder DefineMapperType(string typeName)
+		public static TypeBuilder DefineMapperType(string typeName)
 		{
 			lock (typeof(DynamicAssemblyManager))
 			{
 				return moduleBuilder.DefineType(
 					CorrectTypeName(typeName + Guid.NewGuid().ToString().Replace("-", "")),
-					TypeAttributes.Public,
-					typeof(MapperForClassImpl),
-					null
-					);
-			}
-		}
-
-		internal static TypeBuilder DefineType(string typeName, Type parent)
-		{
-			lock (typeof(DynamicAssemblyManager))
-			{
-				return moduleBuilder.DefineType(
-					CorrectTypeName(typeName),
-					TypeAttributes.Public,
-					parent,
+					TypeAttributes.Public | TypeAttributes.Sealed,
 					null
 					);
 			}

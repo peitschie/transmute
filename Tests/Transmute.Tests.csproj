@@ -116,6 +116,7 @@
     <Compile Include="Examples\RegisterOneWayMapping.cs" />
     <Compile Include="Examples\DivingIn.cs" />
     <Compile Include="Examples\RegisterTwoWayMapping.cs" />
+    <Compile Include="EmitMapper\Exploration.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Transmute\Transmute.csproj">
@@ -136,5 +137,6 @@
   -->
   <ItemGroup>
     <Folder Include="Examples\" />
+    <Folder Include="EmitMapper\" />
   </ItemGroup>
 </Project>

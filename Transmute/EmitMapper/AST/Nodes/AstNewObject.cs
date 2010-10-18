@@ -3,9 +3,9 @@ using System.Linq;
 using EmitMapper.AST.Interfaces;
 using System.Reflection;
 using System.Reflection.Emit;
-using EmitMapper.Utils;
 using EmitMapper.AST.Helpers;
 using System.Collections.Generic;
+using Transmute.Internal;
 
 namespace EmitMapper.AST.Nodes
 {
@@ -41,7 +41,7 @@ namespace EmitMapper.AST.Nodes
 
         public void Compile(CompilationContext context)
         {
-			if (ReflectionUtils.IsNullable(objectType))
+			if (MapperUtils.IsNullable(objectType))
 			{
 				IAstRefOrValue underlyingValue;
 				var underlyingType = Nullable.GetUnderlyingType(objectType);
@@ -95,7 +95,7 @@ namespace EmitMapper.AST.Nodes
                 else
                 {
                     throw new Exception(
-                        String.Format("Constructor for types [{0}] not found in {1}", types.ToCSV(","), objectType.FullName)
+                        String.Format("Constructor not found in {0}", objectType.FullName)
                     );
                 }
 			}

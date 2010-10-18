@@ -4,8 +4,8 @@ using System.Linq;
 using System.Text;
 using EmitMapper.AST.Interfaces;
 using System.Reflection.Emit;
-using EmitMapper.Utils;
 using EmitMapper.AST.Helpers;
+using Transmute.Internal;
 
 namespace EmitMapper.AST.Nodes
 {
@@ -31,11 +31,11 @@ namespace EmitMapper.AST.Nodes
 
         public void Compile(CompilationContext context)
         {
-            if (!(value is IAstRef) && !ReflectionUtils.IsNullable(value.itemType))
+            if (!(value is IAstRef) && !MapperUtils.IsNullable(value.itemType))
             {
                 context.Emit(OpCodes.Ldc_I4_1);
             }
-			else if (ReflectionUtils.IsNullable(value.itemType))
+			else if (MapperUtils.IsNullable(value.itemType))
 			{
 				AstBuildHelper.ReadPropertyRV(
 					new AstValueToAddr((IAstValue)value),

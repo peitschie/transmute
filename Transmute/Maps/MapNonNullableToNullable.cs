@@ -1,4 +1,5 @@
 using System;
+using Transmute.Internal;
 
 namespace Transmute.Maps
 {
@@ -13,7 +14,7 @@ namespace Transmute.Maps
 
         public bool CanMap(Type from, Type to)
         {
-            return to.IsGenericType && to.GetGenericTypeDefinition() == typeof (Nullable<>) && _mapper.CanMap(from, to.GetGenericArguments()[0]);
+            return MapperUtils.IsNullable(to) && _mapper.CanMap(from, to.GetGenericArguments()[0]);
         }
 
         public MapperAction<TContext> GetMapper(Type fromType, Type toType)

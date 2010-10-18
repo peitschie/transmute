@@ -153,6 +153,11 @@ namespace Transmute.Internal
             }
         }
 
+        public static bool IsNullable(Type type)
+        {
+            return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
+        }
+
         public static MemberInfo ResolveSource<TFrom, TTo, TContext>(this IMappingCollection<TFrom, TTo, TContext> resolvers, MemberInfo dest)
         {
             return resolvers.ResolveSource(dest, resolvers.Unmapped.Source.ToArray());

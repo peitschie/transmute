@@ -1,8 +1,6 @@
-Transmute.Silverlight/obj
 Transmute.userprefs
 *.pidb
 Output
-Tests/obj
-Transmute/obj
 TestResult.xml
-Transmute.Benchmark/bin
+**/bin
+**/obj
