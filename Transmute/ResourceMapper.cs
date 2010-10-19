@@ -24,6 +24,8 @@ namespace Transmute
         private readonly List<ITypeMap<TContext>> _maps = new List<ITypeMap<TContext>>();
         private readonly PriorityList<IMemberConsumer> _memberConsumers = new PriorityList<IMemberConsumer>();
         private readonly PriorityList<IMemberResolver> _memberResolvers = new PriorityList<IMemberResolver>();
+        private bool _debug = true;
+        private string _mapFile = null;
 
         public ResourceMapper()
         {
@@ -83,7 +85,8 @@ namespace Transmute
             AssertNoExistingMaps(typeof(TFrom), typeof(TTo));
             MapperAction<TContext> mapperAction = (tf, tt, from, to, mapper, context) => convert((TFrom)from, (TTo)to, mapper, context);
             _mapCache.Add(typeof(TFrom), typeof(TTo), mapperAction);
-            _mapCreationInfo.Add(new MapInfoEntry(mapperAction));
+            if(_debug)
+                _mapCreationInfo.Add(new MapInfoEntry(mapperAction));
         }
 
         public void ConvertUsing(Type from, Type to, Func<object, object> convert)
@@ -97,7 +100,8 @@ namespace Transmute
             AssertNoExistingMaps(from, to);
             MapperAction<TContext> mapperAction = (tf, tt, ofrom, oto, mapper, context) => convert(ofrom, oto, mapper, context);
             _mapCache.Add(from, to, mapperAction);
-            _mapCreationInfo.Add(new MapInfoEntry(mapperAction));
+            if(_debug)
+                _mapCreationInfo.Add(new MapInfoEntry(mapperAction));
         }
         #endregion
 
@@ -115,7 +119,10 @@ namespace Transmute
                 existingEntry = new RequiredMapEntry{Type1 = fromType, Type2 = toType};
                 _requiredMaps.Add(fromType, toType, existingEntry);
             }
-            existingEntry.Messages.Add(description);
+            if(_debug)
+            {
+                existingEntry.Messages.Add(description);
+            }
         }
 
         public void RequireOneWayMap<TFrom, TTo, TFromParent, TToParent>()
@@ -162,7 +169,8 @@ namespace Transmute
         {
             AssertIsNotInitialized();
             _maps.Add(map);
-            _mapCreationInfo.Add(new MapInfoEntry(map));
+            if(_debug)
+                _mapCreationInfo.Add(new MapInfoEntry(map));
         }
 
         #region RegisterTwoWayMapping
@@ -258,7 +266,11 @@ namespace Transmute
         private void InternalRegisterOneWayMappingAction<TFrom, TTo>(Action<IMappingCollection<TFrom, TTo, TContext>> overrides)
         {
             AssertIsNotInitialized();
-            var stackTrace = CaptureStackTrace();
+            StackTrace stackTrace = null;
+            if(_debug)
+            {
+                stackTrace = CaptureStackTrace();
+            }
             RequireOneWayMap<TFrom, TTo>(stackTrace != null ? stackTrace.ToString() : "unknown");
             var map = new MapObject<TFrom, TTo, TContext>(this);
             AssertNoExistingMaps(typeof(TFrom), typeof(TTo));
@@ -315,6 +327,17 @@ namespace Transmute
                 throw new MapperException(string.Format("Unable to map from {0} to {1}.{2}", fromType, toType, additionalInfo));
             }
             return setter;
+        }
+
+        public void DeactivateDiagnostics()
+        {
+            _debug = false;
+        }
+
+        public void ExportMapsTo(string filename)
+        {
+            _debug = true;
+            _mapFile = filename;
         }
 
         public void InitializeMap()

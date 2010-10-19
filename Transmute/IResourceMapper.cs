@@ -45,6 +45,9 @@ namespace Transmute
         void RegisterConstructor(Type type, Func<object> constructor);
         void RegisterConstructor<TType>(Func<TType> constructor);
 
+        void DeactivateDiagnostics();
+        void ExportMapsTo(string filename);
+
         void InitializeMap();
 
         bool IsInitialized { get; }
