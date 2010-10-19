@@ -64,7 +64,7 @@ namespace Transmute.Tests.EmitMapper
             var destinationObj = new DestinationObject();
             object dynamicType = Activator.CreateInstance(type, false);
             type.GetField("Lambda").SetValue(dynamicType, getValue);
-            type.InvokeMember("Convert", BindingFlags.InvokeMethod, null, dynamicType, new object[]{null, destinationObj});
+            type.InvokeMember("ConvertLambda", BindingFlags.InvokeMethod, null, dynamicType, new object[]{null, destinationObj});
 
             Assert.AreEqual(10, destinationObj.Destination);
         }
