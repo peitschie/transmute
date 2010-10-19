@@ -46,10 +46,12 @@ namespace Transmute
         void RegisterConstructor<TType>(Func<TType> constructor);
 
         void DeactivateDiagnostics();
-        void ExportMapsTo(string filename);
+        void ExportMapsTo(string directory);
 
         void InitializeMap();
 
+        string ExportedMapsDirectory { get; }
+        bool DiagnosticsEnabled { get; }
         bool IsInitialized { get; }
         IPriorityList<IMemberConsumer> MemberConsumers { get; }
         IPriorityList<IMemberResolver> MemberResolvers { get; }

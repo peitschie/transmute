@@ -4,6 +4,7 @@ using NGineer;
 using NUnit.Framework;
 using Transmute.Exceptions;
 using Transmute.Tests.Types;
+using System.IO;
 
 namespace Transmute.Tests
 {
@@ -35,6 +36,20 @@ namespace Transmute.Tests
             _mapper.Map(resourceObj, domainObj, null);
             Assert.AreEqual(resourceObj.ExampleProperty, domainObj.ExampleProperty);
             Assert.IsNull(domainObj.RandomProperty);
+        }
+
+        [Test]
+        public void ExportMapsTo_RegisterOneWayMapping_SimpleObjects()
+        {
+            if(Directory.Exists("maps"))
+            {
+                Directory.Delete("maps", true);
+            }
+
+            _mapper.ExportMapsTo("maps");
+            _mapper.InitializeMap();
+
+            DirectoryAssert.IsNotEmpty("maps");
         }
 
         [Test]

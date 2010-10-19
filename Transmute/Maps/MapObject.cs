@@ -3,6 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using Transmute.Internal;
 using System.Reflection;
+using System.Xml;
+using System.IO;
+using Transmute.Internal.Diagnostics;
+using Transmute.Internal.Utils;
+using System.Xml.Serialization;
 
 namespace Transmute.Maps
 {
@@ -30,8 +35,38 @@ namespace Transmute.Maps
                 {
                     @override(mappingCollection);
                 }
+                _override.Clear();
                 mappingCollection.DoAutomapping();
                 mappingCollection.VerifyMap();
+
+                if(_mapper.DiagnosticsEnabled && !string.IsNullOrEmpty(_mapper.ExportedMapsDirectory))
+                {
+                    var filename = string.Format("{0}_To_{1}.xml",
+                                                 typeof(TFrom).FullName.Replace(".","-"),
+                                                 typeof(TTo).FullName.Replace(".","-"));
+                    Console.Out.WriteLine(filename);
+                    var mapEntry = new TypeToTypeMap();
+                    mapEntry.Members = mappingCollection.Setters.OrderBy(x => x.SetOrder).Select(s => new MapMemberDescription {
+                            order = s.SetOrder,
+                            Destination = new MemberDescription {
+                                Name = s.DestinationMember.ToMemberName(),
+                                type = s.DestinationType.FullName },
+                            Source = new MemberDescription {
+                                Name = s.SourceObjectType == MemberEntryType.Member ?
+                                            ((MemberInfo[])s.SourceObject).ToMemberName()
+                                            : "Custom function",
+                                type = s.SourceType != null ? s.SourceType.FullName : null,
+                                ignored = s.SourceObject == null ? "true" : null },
+                            remapped = s.Remap
+                        }).ToArray();
+
+                    var serializer = new XmlSerializer(mapEntry.GetType());
+                    using(var outputStream = XmlWriter.Create(Path.Combine(_mapper.ExportedMapsDirectory, filename),
+                                                              new XmlWriterSettings{ Indent = true }))
+                    {
+                        serializer.Serialize(outputStream, mapEntry);
+                    }
+                }
                 foreach (var iteratingSetter in mappingCollection.Setters.Where(s => s.SourceObject != null))
                 {
                     var setter = iteratingSetter;
@@ -72,11 +107,10 @@ namespace Transmute.Maps
                             }
                             break;
                         default:
-                            throw new InvalidCastException();
+                            throw new ArgumentOutOfRangeException("MemberEntryType not supported");
                     }
                     _setters.Add(action);
                 }
-                _override.Clear();
 
                 var generatedStatements = GenerateMapStatement(_setters);
                 if(mappingCollection.UpdatesContext)

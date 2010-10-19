@@ -9,6 +9,7 @@ using Transmute.Internal;
 using Transmute.Internal.Utils;
 using Transmute.Maps;
 using Transmute.MemberResolver;
+using System.IO;
 
 namespace Transmute
 {
@@ -24,8 +25,7 @@ namespace Transmute
         private readonly List<ITypeMap<TContext>> _maps = new List<ITypeMap<TContext>>();
         private readonly PriorityList<IMemberConsumer> _memberConsumers = new PriorityList<IMemberConsumer>();
         private readonly PriorityList<IMemberResolver> _memberResolvers = new PriorityList<IMemberResolver>();
-        private bool _debug = true;
-        private string _mapFile = null;
+        private bool _diagnosticsEnabled = true;
 
         public ResourceMapper()
         {
@@ -68,6 +68,8 @@ namespace Transmute
             return constructor();
         }
 
+        public string ExportedMapsDirectory { get; private set; }
+        public bool DiagnosticsEnabled { get {return _diagnosticsEnabled;} }
         public bool IsInitialized { get; private set; }
         public IPriorityList<IMemberConsumer> MemberConsumers { get { return _memberConsumers; } }
         public IPriorityList<IMemberResolver> MemberResolvers { get { return _memberResolvers; } }
@@ -85,7 +87,7 @@ namespace Transmute
             AssertNoExistingMaps(typeof(TFrom), typeof(TTo));
             MapperAction<TContext> mapperAction = (tf, tt, from, to, mapper, context) => convert((TFrom)from, (TTo)to, mapper, context);
             _mapCache.Add(typeof(TFrom), typeof(TTo), mapperAction);
-            if(_debug)
+            if(_diagnosticsEnabled)
                 _mapCreationInfo.Add(new MapInfoEntry(mapperAction));
         }
 
@@ -100,7 +102,7 @@ namespace Transmute
             AssertNoExistingMaps(from, to);
             MapperAction<TContext> mapperAction = (tf, tt, ofrom, oto, mapper, context) => convert(ofrom, oto, mapper, context);
             _mapCache.Add(from, to, mapperAction);
-            if(_debug)
+            if(_diagnosticsEnabled)
                 _mapCreationInfo.Add(new MapInfoEntry(mapperAction));
         }
         #endregion
@@ -119,7 +121,7 @@ namespace Transmute
                 existingEntry = new RequiredMapEntry{Type1 = fromType, Type2 = toType};
                 _requiredMaps.Add(fromType, toType, existingEntry);
             }
-            if(_debug)
+            if(_diagnosticsEnabled)
             {
                 existingEntry.Messages.Add(description);
             }
@@ -169,7 +171,7 @@ namespace Transmute
         {
             AssertIsNotInitialized();
             _maps.Add(map);
-            if(_debug)
+            if(_diagnosticsEnabled)
                 _mapCreationInfo.Add(new MapInfoEntry(map));
         }
 
@@ -267,7 +269,7 @@ namespace Transmute
         {
             AssertIsNotInitialized();
             StackTrace stackTrace = null;
-            if(_debug)
+            if(_diagnosticsEnabled)
             {
                 stackTrace = CaptureStackTrace();
             }
@@ -331,13 +333,13 @@ namespace Transmute
 
         public void DeactivateDiagnostics()
         {
-            _debug = false;
+            _diagnosticsEnabled = false;
         }
 
         public void ExportMapsTo(string filename)
         {
-            _debug = true;
-            _mapFile = filename;
+            _diagnosticsEnabled = true;
+            ExportedMapsDirectory = filename;
         }
 
         public void InitializeMap()
@@ -349,6 +351,14 @@ namespace Transmute
             {
                 if (IsInitialized)
                     return;
+
+                if(_diagnosticsEnabled
+                   && !string.IsNullOrEmpty(ExportedMapsDirectory)
+                   && !Directory.Exists(ExportedMapsDirectory))
+                {
+                    Directory.CreateDirectory(ExportedMapsDirectory);
+                }
+
 
                 var missingMaps = new List<RequiredMapEntry>();
                 var uninitialisedMaps = _requiredMaps.Where(e => !_mapCache.ContainsKey(e.Value.Type1, e.Value.Type2) 
