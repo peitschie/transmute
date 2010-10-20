@@ -580,7 +580,25 @@ For further examples, please check out the [[Examples]] page</pre>
 * [[Passing variables from parent to child maps]]
 * [[Map a collection property to another collection property]]</pre>
 </div>
-<div title="Introduction" creator="PhilipPeitsch" modifier="PhilipPeitsch" created="201006301200" modified="201007010714" changecount="9">
+<div title="FAQ" creator="PhilipPeitsch" modifier="PhilipPeitsch" created="201010200856" modified="201010200911" changecount="14">
+<pre>!How does transmute decide whether to remap a type by default or not?
+Transmute decides based on the source and destination types of the map, and whether it was a function to member mapping or a member to member mapping. These defaults have been decided based on general use-cases for each style of source, and can all be overridden during the Set process to force a particular entry to remap or never remap.
+!! Functions
+|!Source Type|!Destination Type|!Remap?|!Comments|h
+|value type|identical value type| no |These are safe to map as they cannot be modified accidently by changing the source object after mapping|
+|value type|different value type| yes |This requires some type of conversion process to assign|
+|reference type|identical reference type| ''no'' |@@Common usages of the Function syntax means a NEW object is being created specifically for the map.  In this case, this new object is not just a property on the source map and so can likely be safely mapped, without being changed if the source object changes after mapping@@|
+|reference type|different reference type| yes |This requires some type of conversion process to assign|
+!! Members
+|!Source Type|!Destination Type|!Remap?|!Comments|h
+|value type|identical value type| no |These are safe to map as they cannot be modified accidently by changing the source object after mapping|
+|value type|different value type| yes |This requires some type of conversion process to assign|
+|reference type|identical reference type| ''yes'' |@@These are unsafe to map as changing the source object after mapping can inadvertently modify the newly mapped object@@|
+|reference type|different reference type| yes |This requires some type of conversion process to assign|
+
+</pre>
+</div>
+<div title="Introduction" creator="PhilipPeitsch" modifier="PhilipPeitsch" created="201006301200" modified="201010200851" changecount="10">
 <pre>!Key Extension Concepts
 ;[[Custom one-way map]]
 :
@@ -591,7 +609,8 @@ For further examples, please check out the [[Examples]] page</pre>
 ;[[Member Resolver]]
 :Used by map creators to find acceptable source members for unmapped destination members.  These are made up of only a single method that returns true if a given source member &amp; destination member are a likely match
 ;[[Type Map]]
-:Performs initial pass required for building a type map.  These are generally not required in most cases.  Internally, only 4 or 5 actually exist, taking care of mapping between different collection or array types, and mapping between some enum types.  A type map should only be used if a completely custom mapping behaviour is required, or a type map should be applicable to a wide number of types</pre>
+:Performs initial pass required for building a type map.  These are generally not required in most cases.  Internally, only 4 or 5 actually exist, taking care of mapping between different collection or array types, and mapping between some enum types.  A type map should only be used if a completely custom mapping behaviour is required, or a type map should be applicable to a wide number of types
+[[FAQ]]</pre>
 </div>
 <div title="MainMenu" creator="PhilipPeitsch" modifier="PhilipPeitsch" created="201006301156" changecount="1">
 <pre>[[GettingStarted]]
