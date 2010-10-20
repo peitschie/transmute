@@ -144,7 +144,7 @@ namespace Transmute.Internal
             setter.SourceObjectType = MemberEntryType.Member;
             setter.SourceObject = from;
             setter.SourceType = fromPropertyType;
-            setter.Remap = remap ?? RequiresRemappingByDefault(setter.DestinationType, setter.SourceType);
+            setter.Remap = remap ?? RequiresRemappingByDefault(setter.DestinationType, setter.SourceType, false);
             if(!setter.Remap)
             {
                 VerifyReturnType(toPropertyType, fromPropertyType);
@@ -160,7 +160,7 @@ namespace Transmute.Internal
         public IMappingCollection<TFrom, TTo, TContext> Set<TPropertyType, TGetterType>(
             Expression<Func<TTo, TPropertyType>> toExpression, 
             Func<TGetterType> getter,
-            bool remap=false)
+            bool? remap=null)
         {
             AssertIsNotLocked();
             var setter = MapEntry(MemberExpressions.GetExpressionChain(toExpression));
@@ -168,7 +168,7 @@ namespace Transmute.Internal
             setter.SourceObject = (MemberSource<TContext>)((from, to, mapper, context) => getter());
             setter.SourceType = typeof(TGetterType);
             setter.SourceObjectType = MemberEntryType.Function;
-            setter.Remap = remap;
+            setter.Remap = remap ?? RequiresRemappingByDefault(setter.DestinationType, setter.SourceType, true);
             if(!setter.Remap)
             {
                 VerifyReturnType(typeof(TPropertyType), typeof(TGetterType));
@@ -185,7 +185,7 @@ namespace Transmute.Internal
 
         public IMappingCollection<TFrom, TTo, TContext> Set<TPropertyType, TGetterType>(
             Expression<Func<TTo, TPropertyType>> toExpression,
-            Func<TFrom, TTo, IResourceMapper<TContext>, TContext, TGetterType> getter, bool? remap=false)
+            Func<TFrom, TTo, IResourceMapper<TContext>, TContext, TGetterType> getter, bool? remap=null)
         {
             AssertIsNotLocked();
             var setter = MapEntry(MemberExpressions.GetExpressionChain(toExpression));
@@ -193,7 +193,7 @@ namespace Transmute.Internal
             setter.SourceObject = (MemberSource<TContext>)((from, to, mapper, context) => getter((TFrom)from, (TTo)to, mapper, context));
             setter.SourceType = typeof(TGetterType);
             setter.SourceObjectType = MemberEntryType.Function;
-            setter.Remap = remap ?? RequiresRemappingByDefault(typeof(TGetterType), typeof(TPropertyType));
+            setter.Remap = remap ?? RequiresRemappingByDefault(typeof(TGetterType), typeof(TPropertyType), true);
             if(!setter.Remap)
             {
                 VerifyReturnType(typeof(TPropertyType), typeof(TGetterType));
@@ -256,9 +256,11 @@ namespace Transmute.Internal
             return this;
         }
 
-        private static bool RequiresRemappingByDefault(Type toType, Type fromType)
+        private static bool RequiresRemappingByDefault(Type toType, Type fromType, bool isFunction)
         {
-            return !(toType.IsAssignableFrom(fromType) && MapByVal<TContext>.IsValType(toType) && MapByVal<TContext>.IsValType(toType));
+            return !(toType.IsAssignableFrom(fromType)
+                     && (isFunction
+                         || (MapByVal<TContext>.IsValType(toType) && MapByVal<TContext>.IsValType(toType))));
         }
 
         public IMappingCollection<TFrom, TTo, TContext> RequireOneWayMap(Type from, Type to)

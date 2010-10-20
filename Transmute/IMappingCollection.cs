@@ -14,9 +14,9 @@ namespace Transmute
         IMappingCollection<TFrom, TTo, TContext> SetMember(MemberInfo[] member, MemberInfo[] getter, bool? remap=null);
         IMappingCollection<TFrom, TTo, TContext> SetMember(MemberInfo[] member, MemberSource<TContext> source);
         
-        IMappingCollection<TFrom, TTo, TContext> Set<TPropertyType, TGetterType>(Expression<Func<TTo, TPropertyType>> toExpression, Func<TGetterType> getter, bool remap=false);
+        IMappingCollection<TFrom, TTo, TContext> Set<TPropertyType, TGetterType>(Expression<Func<TTo, TPropertyType>> toExpression, Func<TGetterType> getter, bool? remap=null);
         IMappingCollection<TFrom, TTo, TContext> Set<TPropertyType>(Expression<Func<TTo, TPropertyType>> toExpression, Func<TFrom, TTo, IResourceMapper<TContext>, TContext, TPropertyType> getter);
-        IMappingCollection<TFrom, TTo, TContext> Set<TPropertyType, TGetterType>(Expression<Func<TTo, TPropertyType>> toExpression, Func<TFrom, TTo, IResourceMapper<TContext>, TContext, TGetterType> getter, bool? remap=false);
+        IMappingCollection<TFrom, TTo, TContext> Set<TPropertyType, TGetterType>(Expression<Func<TTo, TPropertyType>> toExpression, Func<TFrom, TTo, IResourceMapper<TContext>, TContext, TGetterType> getter, bool? remap=null);
         IMappingCollection<TFrom, TTo, TContext> Set<TPropertyType, TGetterType>(Expression<Func<TTo, TPropertyType>> toExpression, Expression<Func<TFrom, TGetterType>> fromExpression, bool? remap=null);
 
         IMappingCollection<TFrom, TTo, TContext> IgnoreMember(MemberInfo member);

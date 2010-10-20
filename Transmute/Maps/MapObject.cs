@@ -52,10 +52,13 @@ namespace Transmute.Maps
                             type = s.DestinationType.FullName,
                             Source = s.SourceObject == null ? null
                                 : new MemberDescription {
-                                    Name = s.SourceObjectType == MemberEntryType.Member ?
+                                    name = s.SourceObjectType == MemberEntryType.Member ?
                                                 ((MemberInfo[])s.SourceObject).ToMemberName()
-                                                : "Custom function",
-                                    type = s.SourceType != null ? s.SourceType.FullName : null},
+                                                : null,
+                                    type = s.SourceType != null ? s.SourceType.FullName : null,
+                                    Function = s.SourceObjectType == MemberEntryType.Function ?
+                                                "Custom Function"
+                                                : null},
                             remapped = s.Remap
                         }).ToArray();
 
