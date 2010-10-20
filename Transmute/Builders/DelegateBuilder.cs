@@ -64,35 +64,38 @@ namespace Transmute.Builders
                 {
                     _mapper.RequireOneWayMap(setter.SourceType, setter.DestinationType, typeof(TFrom), typeof(TTo));
                 }
+                var toSetter = setter.DestinationMember.CreateConstructingAccessorChain<TContext>();
                 var toAccessor = MapperUtils.CreateAccessorChain(setter.DestinationMember);
                 switch(setter.SourceObjectType)
                 {
                     case MemberEntryType.Function:
                         if(setter.Remap)
                         {
-                            action += new MemberSetter<TContext>(setter.DestinationMember,
-                                (from, to, mapper, context) => mapper.Map(setter.SourceType, setter.DestinationType,
-                                ((MemberSource<TContext>)setter.SourceFunc)(from, to, mapper, context), toAccessor.Get(to), context))
-                                .GenerateCopyValueCall();
+                            action += (tfrom, tto, from, to, mapper, context) => {
+                                var dest = toAccessor.Get(to);
+                                toSetter(to, mapper.Map(setter.SourceType, setter.DestinationType,
+                                               ((MemberSource<TContext>)setter.SourceFunc)(from, to, mapper, context),
+                                               dest, context), mapper, context);
+                            };
                         }
                         else
                         {
-                            action += new MemberSetter<TContext>(setter.DestinationMember,
-                                ((MemberSource<TContext>)setter.SourceFunc)).GenerateCopyValueCall();
+                            action += (tfrom, tto, from, to, mapper, context) =>
+                                toSetter(to, ((MemberSource<TContext>)setter.SourceFunc)(from, to, mapper, context), mapper, context);
                         }
                         break;
                     case MemberEntryType.Member:
                         var fromAccessor = MapperUtils.CreateAccessorChain(setter.SourceRoot.Union(setter.SourceMember));
                         if(setter.Remap)
                         {
-                            action += new MemberSetter<TContext>(setter.DestinationMember,
-                                (from, to, mapper, context) => mapper.Map(setter.SourceType, setter.DestinationType,
-                                    fromAccessor.Get(from), toAccessor.Get(to), context)).GenerateCopyValueCall();
+                            action += (tfrom, tto, from, to, mapper, context) =>
+                                toSetter(to, mapper.Map(setter.SourceType, setter.DestinationType,
+                                                    fromAccessor.Get(from), toAccessor.Get(to), context), mapper, context);
                         }
                         else
                         {
-                            action += new MemberSetter<TContext>(setter.DestinationMember,
-                                (from, to, mapper, context) => fromAccessor.Get(from)).GenerateCopyValueCall();
+                            action += (tfrom, tto, from, to, mapper, context) =>
+                                toSetter(to, fromAccessor.Get(from), mapper, context);
                         }
                         break;
                     default:

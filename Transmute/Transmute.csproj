@@ -78,7 +78,6 @@
     <Compile Include="Internal\IgnoredSetter.cs" />
     <Compile Include="Internal\IMapper.cs" />
     <Compile Include="Internal\MappingCollection.cs" />
-    <Compile Include="Internal\MemberSetter.cs" />
     <Compile Include="IMappingCollection.cs" />
     <Compile Include="IOneWayMap.cs" />
     <Compile Include="Exceptions\MapperException.cs" />

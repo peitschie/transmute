@@ -65,7 +65,6 @@
     <Compile Include="Maps\MapNullableToNullableTests.cs" />
     <Compile Include="Types\ClassWithProtectedProperties.cs" />
     <Compile Include="Types\CustomEnum1.cs" />
-    <Compile Include="Internal\MemberSetterTests.cs" />
     <Compile Include="Internal\IgnoredSetterTests.cs" />
     <Compile Include="Internal\TypeDictionaryTests.cs" />
     <Compile Include="MapHelpersTests.cs" />
