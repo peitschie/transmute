@@ -10,6 +10,7 @@ using Transmute.Tests.Types;
 namespace Transmute.Tests.Internal
 {
     [TestFixture]
+    [Ignore("This class is soon to be redundant")]
     public class MemberSetterTests
     {
         private MemberSetter<object> _setter;

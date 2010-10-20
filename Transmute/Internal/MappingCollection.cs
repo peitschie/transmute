@@ -57,7 +57,7 @@ namespace Transmute.Internal
             _toPrefix = toPrefix;
             _setters = setters;
             foreach (var property in typeof(TTo).GetProperties()
-                                        .Where(p => p.GetSetMethod() != null && !_setters.Any(s => s.IsForMember(_toPrefix, p))))
+                                        .Where(p => p.IsWritable() && !_setters.Any(s => s.IsForMember(_toPrefix, p))))
             {
                 _setters.Add(new MemberEntry {
                         DestinationMember = _toPrefix.Union(new MemberInfo[]{property}).ToArray(),
@@ -107,6 +107,10 @@ namespace Transmute.Internal
         {
             if(member == null)
                 throw new ArgumentNullException("member");
+            if(!member.Last().IsWritable())
+            {
+                throw new ArgumentException(string.Format("Target member {0} must be writeable", member));
+            }
             AssertIsNotLocked();
             var setter = MapEntry(member);
             setter.DestinationType = member.Last().ReturnType();
@@ -138,6 +142,10 @@ namespace Transmute.Internal
             if(toPropertyType == null) throw new ArgumentNullException("toPropertyType");
             if(from == null) throw new ArgumentNullException("from");
             if(fromPropertyType == null) throw new ArgumentNullException("fromPropertyType");
+            if(!to.Last().IsWritable())
+            {
+                throw new ArgumentException(string.Format("Target member {0} must be writeable", to));
+            }
             AssertIsNotLocked();
             var setter = MapEntry(to);
             setter.DestinationType = toPropertyType;
@@ -162,8 +170,13 @@ namespace Transmute.Internal
             Func<TGetterType> getter,
             bool? remap=null)
         {
+            var toChain = MemberExpressions.GetExpressionChain(toExpression);
+            if(!toChain.Last().IsWritable())
+            {
+                throw new ArgumentException(string.Format("Target member {0} must be writeable", toChain));
+            }
             AssertIsNotLocked();
-            var setter = MapEntry(MemberExpressions.GetExpressionChain(toExpression));
+            var setter = MapEntry(toChain);
             setter.DestinationType = typeof(TPropertyType);
             setter.SourceObject = (MemberSource<TContext>)((from, to, mapper, context) => getter());
             setter.SourceType = typeof(TGetterType);
@@ -187,8 +200,13 @@ namespace Transmute.Internal
             Expression<Func<TTo, TPropertyType>> toExpression,
             Func<TFrom, TTo, IResourceMapper<TContext>, TContext, TGetterType> getter, bool? remap=null)
         {
+            var toChain = MemberExpressions.GetExpressionChain(toExpression);
+            if(!toChain.Last().IsWritable())
+            {
+                throw new ArgumentException(string.Format("Target member {0} must be writeable", toChain));
+            }
             AssertIsNotLocked();
-            var setter = MapEntry(MemberExpressions.GetExpressionChain(toExpression));
+            var setter = MapEntry(toChain);
             setter.DestinationType = typeof(TPropertyType);
             setter.SourceObject = (MemberSource<TContext>)((from, to, mapper, context) => getter((TFrom)from, (TTo)to, mapper, context));
             setter.SourceType = typeof(TGetterType);

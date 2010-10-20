@@ -24,18 +24,8 @@ namespace Transmute.Internal
                 throw new ArgumentNullException("get");
             if(toPrefix != null && to.Length > 0)
                 to = toPrefix.Union(to).ToArray();
-            CheckWriteable(to.Last());
-            if (to.Length == 1)
-            {
-                var accessor = to.First().GetAccessor();
-                _toAccessor = (target, value, mapper, context) => { accessor.Set(target, value); return target; };
-                _name = to.First().Name;
-            }
-            else
-            {
-                _toAccessor = to.CreateConstructingAccessorChain<TContext>();
-                _name = string.Join(".", to.Select(p => p.Name).ToArray());
-            }
+            _toAccessor = to.CreateConstructingAccessorChain<TContext>();
+            _name = string.Join(".", to.Select(p => p.Name).ToArray());
             if (fromPrefix != null && fromPrefix.Length > 0)
             {
                 var getterChain = fromPrefix.CreateAccessorChain();
@@ -45,26 +35,6 @@ namespace Transmute.Internal
             {
                 _get = get;
             }
-        }
-
-        private static void CheckWriteable(MemberInfo to)
-        {
-            switch (to.MemberType)
-            {
-                case MemberTypes.Field:
-                    var field = (FieldInfo) to;
-                    if (!field.IsPublic || field.IsLiteral || field.IsInitOnly)
-                        throw new ArgumentException(string.Format("Target member {0} must be writeable", to));
-                    break;
-                case MemberTypes.Property:
-                    var property = (PropertyInfo) to;
-                    if (!property.CanWrite || property.GetSetMethod() == null)
-                        throw new ArgumentException(string.Format("Target member {0} must be writeable", to));
-                    break;
-                default:
-                    throw new ArgumentException("Only Field or Property members are supported");
-            }
-            
         }
 
         public string Name { get { return _name; } }
