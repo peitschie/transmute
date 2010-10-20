@@ -31,10 +31,10 @@ namespace Transmute.Builders
                        order = s.SetOrder,
                        name = s.DestinationMember.ToMemberName(),
                        type = s.DestinationType.FullName,
-                       Source = s.SourceObject == null ? null
+                       Source = s.IsIgnored ? null
                            : new MemberDescription {
                                name = s.SourceObjectType == MemberEntryType.Member ?
-                                           ((MemberInfo[])s.SourceObject).ToMemberName()
+                                           s.SourceMember.ToMemberName()
                                            : null,
                                type = s.SourceType != null ? s.SourceType.FullName : null,
                                Function = s.SourceObjectType == MemberEntryType.Function ?
@@ -57,7 +57,7 @@ namespace Transmute.Builders
             ExportMapInformation(map);
 
             MemberSetterAction<TContext> action = null;
-            foreach (var iteratingSetter in map.Setters.Where(s => s.SourceObject != null))
+            foreach (var iteratingSetter in map.Setters.Where(s => !s.IsIgnored))
             {
                 var setter = iteratingSetter;
                 if(setter.Remap)
@@ -72,17 +72,17 @@ namespace Transmute.Builders
                         {
                             action += new MemberSetter<TContext>(setter.DestinationMember,
                                 (from, to, mapper, context) => mapper.Map(setter.SourceType, setter.DestinationType,
-                                ((MemberSource<TContext>)setter.SourceObject)(from, to, mapper, context), toAccessor.Get(to), context))
+                                ((MemberSource<TContext>)setter.SourceFunc)(from, to, mapper, context), toAccessor.Get(to), context))
                                 .GenerateCopyValueCall();
                         }
                         else
                         {
                             action += new MemberSetter<TContext>(setter.DestinationMember,
-                                ((MemberSource<TContext>)setter.SourceObject)).GenerateCopyValueCall();
+                                ((MemberSource<TContext>)setter.SourceFunc)).GenerateCopyValueCall();
                         }
                         break;
                     case MemberEntryType.Member:
-                        var fromAccessor = MapperUtils.CreateAccessorChain(setter.SourceRoot.Union((MemberInfo[])setter.SourceObject));
+                        var fromAccessor = MapperUtils.CreateAccessorChain(setter.SourceRoot.Union(setter.SourceMember));
                         if(setter.Remap)
                         {
                             action += new MemberSetter<TContext>(setter.DestinationMember,

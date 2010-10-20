@@ -92,7 +92,7 @@ namespace Transmute.Tests.Internal
                 var setter = _collection.Setters.First(m => m.IsForMember(member));
                 Assert.IsNotNull(setter);
                 Assert.IsTrue(setter.IsMapped);
-                Assert.IsNotNull(setter.SourceObject);
+                Assert.IsFalse(setter.IsIgnored);
         }
 
         [Test]
@@ -240,7 +240,7 @@ namespace Transmute.Tests.Internal
                 var setter = _collection.Setters.First(m => m.DestinationMember.First() == member);
                 Assert.IsNotNull(setter);
                 Assert.IsTrue(setter.IsMapped);
-                        Assert.IsNull(setter.SourceObject);
+                Assert.IsTrue(setter.IsIgnored);
             Assert.IsFalse(_collection.Unmapped.Destination.Any(c => c.Name == member.Name));
         }
 
@@ -252,7 +252,7 @@ namespace Transmute.Tests.Internal
                 var setter = _collection.Setters.First(m => m.DestinationMember.First() == member);
                 Assert.IsNotNull(setter);
                 Assert.IsTrue(setter.IsMapped);
-                        Assert.IsNull(setter.SourceObject);
+                Assert.IsTrue(setter.IsIgnored);
             Assert.IsFalse(_collection.Unmapped.Destination.Any(c => c.Name == member.Name));
         }
 
