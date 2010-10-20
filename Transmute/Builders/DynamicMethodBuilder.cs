@@ -10,10 +10,10 @@ using System.Xml;
 using System.IO;
 namespace Transmute.Builders
 {
-    public class DelegateBuilder<TContext> : AbstractBuilder<TContext>
+    public class DynamicMethodBuilder<TContext> : AbstractBuilder<TContext>
     {
 
-        public DelegateBuilder(IResourceMapper<TContext> mapper) : base(mapper)
+        public DynamicMethodBuilder(IResourceMapper<TContext> mapper) : base(mapper)
         { }
 
         public override MapperAction<TContext> BuildAction<TFrom, TTo>(IMappingCollection<TFrom, TTo, TContext> map)
