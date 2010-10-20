@@ -16,7 +16,6 @@ namespace Transmute.Maps
     {
         private readonly IResourceMapper<TContext> _mapper;
         private readonly List<Action<IMappingCollection<TFrom, TTo, TContext>>> _override = new List<Action<IMappingCollection<TFrom, TTo, TContext>>>();
-        private readonly List<MemberSetterAction<TContext>> _setters = new List<MemberSetterAction<TContext>>();
         private MapperAction<TContext> _mapStatement;
 
         public MapObject(IResourceMapper<TContext> mapper)
