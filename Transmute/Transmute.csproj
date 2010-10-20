@@ -75,7 +75,6 @@
     <Compile Include="Maps\ITypeSpecificMap.cs" />
     <Compile Include="Exceptions\MemberMappingException.cs" />
     <Compile Include="MemberResolver\IgnoreCaseNameMatcher.cs" />
-    <Compile Include="Internal\IgnoredSetter.cs" />
     <Compile Include="Internal\IMapper.cs" />
     <Compile Include="Internal\MappingCollection.cs" />
     <Compile Include="IMappingCollection.cs" />
