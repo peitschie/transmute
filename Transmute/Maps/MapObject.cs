@@ -48,15 +48,14 @@ namespace Transmute.Maps
                     var mapEntry = new TypeToTypeMap();
                     mapEntry.Members = mappingCollection.Setters.OrderBy(x => x.SetOrder).Select(s => new MapMemberDescription {
                             order = s.SetOrder,
-                            Destination = new MemberDescription {
-                                Name = s.DestinationMember.ToMemberName(),
-                                type = s.DestinationType.FullName },
-                            Source = new MemberDescription {
-                                Name = s.SourceObjectType == MemberEntryType.Member ?
-                                            ((MemberInfo[])s.SourceObject).ToMemberName()
-                                            : "Custom function",
-                                type = s.SourceType != null ? s.SourceType.FullName : null,
-                                ignored = s.SourceObject == null ? "true" : null },
+                            name = s.DestinationMember.ToMemberName(),
+                            type = s.DestinationType.FullName,
+                            Source = s.SourceObject == null ? null
+                                : new MemberDescription {
+                                    Name = s.SourceObjectType == MemberEntryType.Member ?
+                                                ((MemberInfo[])s.SourceObject).ToMemberName()
+                                                : "Custom function",
+                                    type = s.SourceType != null ? s.SourceType.FullName : null},
                             remapped = s.Remap
                         }).ToArray();
 

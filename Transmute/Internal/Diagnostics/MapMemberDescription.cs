@@ -6,13 +6,18 @@ namespace Transmute.Internal.Diagnostics
     [XmlType("Member")]
     public class MapMemberDescription
     {
+
+        [XmlAttribute]
+        public string name { get; set; }
+
         [XmlAttribute]
         public int order { get; set; }
 
         [XmlAttribute]
         public bool remapped { get; set; }
 
-        public MemberDescription Destination { get; set; }
+        [XmlAttribute]
+        public string type { get; set; }
 
         public MemberDescription Source { get; set; }
 

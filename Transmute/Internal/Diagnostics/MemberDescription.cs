@@ -8,9 +8,6 @@ namespace Transmute.Internal.Diagnostics
         [XmlAttribute]
         public string type { get; set; }
 
-        [XmlAttribute]
-        public string ignored { get; set; }
-
         [XmlText]
         public string Name { get; set; }
     }
