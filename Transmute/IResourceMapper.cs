@@ -50,6 +50,7 @@ namespace Transmute
 
         void InitializeMap();
 
+        IMapBuilder<TContext> Builder { get; }
         string ExportedMapsDirectory { get; }
         bool DiagnosticsEnabled { get; }
         bool IsInitialized { get; }

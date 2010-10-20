@@ -2,6 +2,7 @@ using System;
 using System.Linq.Expressions;
 using System.Reflection;
 using Transmute.Internal;
+using System.Collections.Generic;
 
 namespace Transmute
 {
@@ -27,6 +28,10 @@ namespace Transmute
         /// context are lost when 
         /// </summary>
         IMappingCollection<TFrom, TTo, TContext> SetChildContext(Func<TFrom, TTo, IResourceMapper<TContext>, TContext, TContext> action);
+
+        IEnumerable<MemberEntry> Setters { get; }
+        bool UpdatesContext { get; }
+        Func<object, object, IResourceMapper<TContext>, TContext, TContext> ContextUpdater { get; }
 
         IPriorityList<IMemberConsumer> MemberConsumers { get; }
         IPriorityList<IMemberResolver> MemberResolvers { get; }

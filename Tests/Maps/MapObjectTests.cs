@@ -11,6 +11,7 @@ namespace Transmute.Tests.Maps
     public class MapObjectTests : TypeMapTestBase<MapObject<ClassWithSeveralPropertiesSrc, ClassWithSeveralPropertiesDest, CloneableTestContext>, CloneableTestContext>
     {
         [Test]
+        [Ignore("Need to find more suitable place for this")]
         public void SetOrder_IsPreserved()
         {
             Map.AcceptOverrides(new ClassWithSeveralPropertiesOverride<CloneableTestContext>().OverrideMapping);
@@ -22,6 +23,7 @@ namespace Transmute.Tests.Maps
         }
 
         [Test]
+        [Ignore("Need to find more suitable place for this")]
         public void DefaultCreators_Null_UsesDefaultMapper()
         {
             Map.AcceptOverrides(new OverrideDefaultCreators<CloneableTestContext>(null).OverrideMapping);
@@ -66,6 +68,7 @@ namespace Transmute.Tests.Maps
         }
 
         [Test]
+        [Ignore("Need to find more suitable place for this")]
         public override void Map_NullDestination()
         {
             ResourceMapper.Setup(c => c.ConstructOrThrow(typeof(ClassWithSeveralPropertiesDest))).Returns(new ClassWithSeveralPropertiesDest());
@@ -74,6 +77,7 @@ namespace Transmute.Tests.Maps
         }
 
         [Test]
+        [Ignore("Need to find more suitable place for this")]
         public void Map_IgnoredAllProperties_NoExceptionThrown()
         {
             Map.AcceptOverrides(new IgnoreAllDefaultCreators<ClassWithSeveralPropertiesSrc, ClassWithSeveralPropertiesDest, CloneableTestContext>().OverrideMapping);
@@ -84,6 +88,7 @@ namespace Transmute.Tests.Maps
         }
 
         [Test]
+        [Ignore("Need to find more suitable place for this")]
         public void Map_ChangesContext_NewContextReceivedInChildMapper()
         {
             var originalContext = new CloneableTestContext();

@@ -10,6 +10,7 @@ using Transmute.Internal.Utils;
 using Transmute.Maps;
 using Transmute.MemberResolver;
 using System.IO;
+using Transmute.Builders;
 
 namespace Transmute
 {
@@ -26,9 +27,11 @@ namespace Transmute
         private readonly PriorityList<IMemberConsumer> _memberConsumers = new PriorityList<IMemberConsumer>();
         private readonly PriorityList<IMemberResolver> _memberResolvers = new PriorityList<IMemberResolver>();
         private bool _diagnosticsEnabled = true;
+        private IMapBuilder<TContext> _builder;
 
         public ResourceMapper()
         {
+            _builder = new DelegateBuilder<TContext>(this);
             _memberConsumers.Add(new DefaultMemberConsumer());
             _memberResolvers.Add(new IgnoreCaseNameMatcher());
             _defaultMaps.Add(new MapList<TContext>(this));
@@ -68,6 +71,7 @@ namespace Transmute
             return constructor();
         }
 
+        public IMapBuilder<TContext> Builder { get { return _builder; } }
         public string ExportedMapsDirectory { get; private set; }
         public bool DiagnosticsEnabled { get {return _diagnosticsEnabled;} }
         public bool IsInitialized { get; private set; }
