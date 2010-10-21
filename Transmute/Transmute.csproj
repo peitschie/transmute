@@ -148,6 +148,7 @@
     <Compile Include="Builders\DynamicMethodBuilder.cs" />
     <Compile Include="Builders\AbstractBuilder.cs" />
     <Compile Include="EmitMapper\AST\Nodes\AstWriteArgument.cs" />
+    <Compile Include="Builders\IDynamicTypeBuilder.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

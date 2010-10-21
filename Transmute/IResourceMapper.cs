@@ -5,7 +5,7 @@ using Transmute.Maps;
 
 namespace Transmute
 {
-    public interface IResourceMapper<TContext>
+    public interface IResourceMapper<TContext> : IDynamicTypeBuilder<TContext>
     {
         bool CanConstruct(Type type);
         object ConstructOrThrow(Type type);
@@ -50,6 +50,7 @@ namespace Transmute
 
         void InitializeMap();
 
+        object Instance { get; }
         IMapBuilder<TContext> Builder { get; }
         string ExportedMapsDirectory { get; }
         bool DiagnosticsEnabled { get; }

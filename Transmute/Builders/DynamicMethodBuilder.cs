@@ -17,25 +17,8 @@ namespace Transmute.Builders
 {
     public class DynamicMethodBuilder<TContext> : AbstractBuilder<TContext>
     {
-        private int _funcCount = 0;
-
         public DynamicMethodBuilder(IResourceMapper<TContext> mapper) : base(mapper)
         { }
-
-        private static string GetMethodName<TFrom, TTo>()
-        {
-            return GetMethodName(typeof(TFrom), typeof(TTo));
-        }
-
-        private static string GetMethodName(Type from, Type to)
-        {
-            return string.Format("Convert_{0}_{1}", from.Name, to.Name);
-        }
-
-        private static string GetTypeName(Type from, Type to)
-        {
-            return GetMethodName(from, to) + "_TYPE";
-        }
 
         private static MethodInfo GetConvertMethod()
         {
@@ -46,13 +29,7 @@ namespace Transmute.Builders
         {
             ExportMapInformation(map);
 
-            var convertMethod = new DynamicMethod(GetMethodName<TFrom, TTo>(), typeof(TTo),
-                new []{typeof(TFrom), typeof(TTo), typeof(IResourceMapper<TContext>), typeof(TContext)}, GetType());
-
-            convertMethod.DefineParameter(1, ParameterAttributes.None, "source");
-            convertMethod.DefineParameter(2, ParameterAttributes.None, "destination");
-            convertMethod.DefineParameter(3, ParameterAttributes.None, "mapper");
-            convertMethod.DefineParameter(4, ParameterAttributes.None, "context");
+            var convertMethod = _mapper.GetOrCreateConvertor(typeof(TFrom), typeof(TTo));
             var context = new CompilationContext(convertMethod.GetILGenerator());
 
 //            if(map.UpdatesContext)
@@ -92,7 +69,7 @@ namespace Transmute.Builders
                     case MemberEntryType.Function:
                         if(setter.Remap)
                         {
-                            
+
                         }
                         else
                         {
@@ -129,9 +106,11 @@ namespace Transmute.Builders
             }
 
             new AstReturn { returnValue = AstBuildHelper.ReadArgumentRV(1, typeof(TTo)), returnType = typeof(TTo)}.Compile(context);
-            var convertDelegate = (Func<TFrom, TTo, IResourceMapper<TContext>, TContext, TTo>)
-                convertMethod.CreateDelegate(typeof(Func<TFrom, TTo, IResourceMapper<TContext>, TContext, TTo>));
-            return (tfrom, tto, from, to, mapper, contxt) => convertDelegate((TFrom)from, (TTo)to, mapper, contxt);
+            var name = convertMethod.Name;
+            return (tfrom, tto, from, to, mapper, contxt) => {
+                return (TTo)mapper.Type.InvokeMember(name, BindingFlags.InvokeMethod, null, null,
+                                             new object[]{from, to, mapper, contxt});
+            };
         }
     }
 }
