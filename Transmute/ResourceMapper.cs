@@ -31,7 +31,7 @@ namespace Transmute
 
         public ResourceMapper()
         {
-            _builder = new DelegateBuilder<TContext>(this);
+            _builder = new DynamicMethodBuilder<TContext>(this);
             _memberConsumers.Add(new DefaultMemberConsumer());
             _memberResolvers.Add(new IgnoreCaseNameMatcher());
             _defaultMaps.Add(new MapList<TContext>(this));

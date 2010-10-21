@@ -15,6 +15,11 @@ namespace Transmute.EmitHelper
         {
             destination.Destination = Lambda();
         }
+
+        public static void Test(SourceObject source, DestinationObject destination, object mapper, object context)
+        {
+            destination = destination ?? new DestinationObject();
+        }
     }
 }
 

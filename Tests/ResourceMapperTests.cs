@@ -23,6 +23,7 @@ namespace Transmute.Tests
                 ;
             _mapper = new ResourceMapper<object>();
             _mapper.RegisterOneWayMapping(new ClassSimpleOverrides<object>());
+            _mapper.ExportMapsTo("maps");
         }
 
         [Test]

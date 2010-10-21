@@ -68,6 +68,28 @@ namespace Transmute.Tests.EmitMapper
 
             Assert.AreEqual(10, destinationObj.Destination);
         }
+
+        [Test]
+        public void Create_IfNull()
+        {
+            var type = DynamicAssemblyManager.DefineMapperType("MyClassType");
+            var convertMethod = type.DefineMethod("Create_IfNull", MethodAttributes.Public, null,
+                new []{typeof(SourceObject), typeof(DestinationObject), typeof(IResourceMapper<object>), typeof(object)});
+
+            convertMethod.DefineParameter(1, ParameterAttributes.None, "source");
+            convertMethod.DefineParameter(2, ParameterAttributes.None, "destination");
+            convertMethod.DefineParameter(3, ParameterAttributes.None, "mapper");
+            convertMethod.DefineParameter(4, ParameterAttributes.None, "context");
+            var context = new CompilationContext(convertMethod.GetILGenerator());
+
+            new AstWriteArgument(1, typeof(DestinationObject), new AstIfNull(
+                (IAstRef)AstBuildHelper.ReadArgumentRA(1, typeof(DestinationObject)),
+                new AstNewObject(typeof(DestinationObject), new IAstStackItem[0])))
+                .Compile(context);
+            new AstReturnVoid().Compile(context);
+            type.CreateType();
+            DynamicAssemblyManager.SaveAssembly();
+        }
     }
 
     public class SourceObject
