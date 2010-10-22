@@ -18,12 +18,28 @@ namespace Transmute.Builders
 {
     public class DynamicMethodBuilder<TContext> : AbstractBuilder<TContext>
     {
+        private int _fieldIndex = 0;
+        private Dictionary<string, object> _constructorValues = new Dictionary<string, object>();
+
         public DynamicMethodBuilder(IResourceMapper<TContext> mapper) : base(mapper)
         { }
 
         private static MethodInfo GetConvertMethod()
         {
             return typeof(IResourceMapper<TContext>).GetMethods().First(m => m.Name == "Map" && m.GetParameters().Length == 3);
+        }
+
+        private string GetFieldName<TFrom, TTo>()
+        {
+            return string.Format("{0}_{1}_{2}", typeof(TFrom).Name, typeof(TTo).Name, _fieldIndex++);
+        }
+
+        public override void InitializeType()
+        {
+            foreach(var entry in _constructorValues)
+            {
+                _mapper.Type.GetField(entry.Key).SetValue(null, entry.Value);
+            }
         }
 
         public override MapperAction<TContext> BuildAction<TFrom, TTo>(IMappingCollection<TFrom, TTo, TContext> map)
@@ -68,23 +84,28 @@ namespace Transmute.Builders
                 switch(setter.SourceObjectType)
                 {
                     case MemberEntryType.Function:
-                        if(setter.Remap)
-                        {
-
-                        }
-                        else
-                        {
-
-                        }
-                        break;
-                    case MemberEntryType.Member:
+                        var funcField = _mapper.Type.DefineField(GetFieldName<TFrom, TTo>(), setter.SourceFunc.GetType(),
+                                                                 FieldAttributes.Public | FieldAttributes.Static);
+                        _constructorValues.Add(funcField.Name, setter.SourceFunc);
+//                        var sourceFuncRoot = setter.SourceRoot.Length > 0 ?
+//                            AstBuildHelper.ReadMembersChain(AstBuildHelper.ReadArgumentRA(0, typeof(TFrom)), setter.SourceRoot)
+//                            : AstBuildHelper.ReadArgumentRV(0, typeof(TFrom));
+                        var method = funcField.FieldType.GetMethod("Invoke", new []{typeof(object), typeof(object), typeof(IResourceMapper<TContext>), typeof(TContext)});
+                        Console.Out.WriteLine(method);
+                        var sourceFunc = AstBuildHelper.CallMethod(
+                                   method,
+                                   AstBuildHelper.ReadFieldRA(null, _mapper.Type.GetField(funcField.Name)),
+                                   new List<IAstStackItem>{
+                                        AstBuildHelper.ReadArgumentRV(0, typeof(TFrom)),
+                                        AstBuildHelper.ReadArgumentRA(1, typeof(TTo)),
+                                        AstBuildHelper.ReadArgumentRA(2, typeof(IResourceMapper<TContext>)),
+                                        AstBuildHelper.ReadArgumentRA(3, typeof(TContext))});
                         if(setter.Remap)
                         {
                             var remapMethod = AstBuildHelper.CallMethod(GetConvertMethod().MakeGenericMethod(setter.SourceType, setter.DestinationType),
                                                         AstBuildHelper.ReadArgumentRA(2, typeof(IResourceMapper<TContext>)),
                                                         new List<IAstStackItem>{
-                                                            AstBuildHelper.ReadMembersChain(AstBuildHelper.ReadArgumentRA(0, typeof(TFrom)),
-                                                                setter.SourceRoot.Union(setter.SourceMember).ToArray()),
+                                                            sourceFunc,
                                                             AstBuildHelper.ReadMembersChain(AstBuildHelper.ReadArgumentRA(1, typeof(TTo)), setter.DestinationMember),
                                                             AstBuildHelper.ReadArgumentRA(3, typeof(TContext)),
                                                         });
@@ -95,11 +116,34 @@ namespace Transmute.Builders
                         }
                         else
                         {
-                            var source = AstBuildHelper.ReadMembersChain(AstBuildHelper.ReadArgumentRA(0, typeof(TFrom)),
-                                                                         setter.SourceRoot.Union(setter.SourceMember).ToArray());
                             var destination = AstBuildHelper.WriteMembersChain(setter.DestinationMember,
                                                                                AstBuildHelper.ReadArgumentRA(1, typeof(TTo)),
-                                                                               source);
+                                                                               sourceFunc);
+                            destination.Compile(context);
+                        }
+                        break;
+                    case MemberEntryType.Member:
+                        var sourceMember = AstBuildHelper.ReadMembersChain(AstBuildHelper.ReadArgumentRA(0, typeof(TFrom)),
+                                                                         setter.SourceRoot.Union(setter.SourceMember).ToArray());
+                        if(setter.Remap)
+                        {
+                            var remapMethod = AstBuildHelper.CallMethod(GetConvertMethod().MakeGenericMethod(setter.SourceType, setter.DestinationType),
+                                                        AstBuildHelper.ReadArgumentRA(2, typeof(IResourceMapper<TContext>)),
+                                                        new List<IAstStackItem>{
+                                                            sourceMember,
+                                                            AstBuildHelper.ReadMembersChain(AstBuildHelper.ReadArgumentRA(1, typeof(TTo)), setter.DestinationMember),
+                                                            AstBuildHelper.ReadArgumentRA(3, typeof(TContext)),
+                                                        });
+                            var destination = AstBuildHelper.WriteMembersChain(setter.DestinationMember,
+                                                                               AstBuildHelper.ReadArgumentRA(1, typeof(TTo)),
+                                                                               remapMethod);
+                            destination.Compile(context);
+                        }
+                        else
+                        {
+                            var destination = AstBuildHelper.WriteMembersChain(setter.DestinationMember,
+                                                                               AstBuildHelper.ReadArgumentRA(1, typeof(TTo)),
+                                                                               sourceMember);
                             destination.Compile(context);
                         }
                         break;

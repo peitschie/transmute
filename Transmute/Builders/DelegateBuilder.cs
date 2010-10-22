@@ -16,6 +16,10 @@ namespace Transmute.Builders
         public DelegateBuilder(IResourceMapper<TContext> mapper) : base(mapper)
         { }
 
+        public override void InitializeType()
+        {
+        }
+
         public override MapperAction<TContext> BuildAction<TFrom, TTo>(IMappingCollection<TFrom, TTo, TContext> map)
         {
             ExportMapInformation(map);

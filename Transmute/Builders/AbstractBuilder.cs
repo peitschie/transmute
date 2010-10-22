@@ -52,6 +52,7 @@ namespace Transmute.Builders
         }
 
         public abstract MapperAction<TContext> BuildAction<TFrom, TTo>(IMappingCollection<TFrom, TTo, TContext> map);
+        public abstract void InitializeType();
     }
 }
 

@@ -1,10 +1,12 @@
 using System;
 using Transmute.Tests.EmitMapper;
+using Transmute.Tests.Integration;
 namespace Transmute.EmitHelper
 {
     public sealed class MyClass
     {
         public static Func<int> Lambda;
+        public static MemberSource<object> SourceWithEnum_DestWithInt_0 = (from, to, mapper, context) => ((SourceWithEnum)from).Enum;
 
         public static void Convert(SourceObject source, DestinationObject destination)
         {
@@ -19,6 +21,13 @@ namespace Transmute.EmitHelper
         public static void Test(SourceObject source, DestinationObject destination, object mapper, object context)
         {
             destination = destination ?? new DestinationObject();
+        }
+
+        public static void Convert_SourceWithEnum_DestWithInt(SourceWithEnum source, DestWithInt destination,
+                                                              IResourceMapper<object> mapper, object context)
+        {
+            destination = destination ?? new DestWithInt();
+            destination.Enum = mapper.Map(SourceWithEnum_DestWithInt_0(source, destination, mapper, context), destination.Enum, context);
         }
     }
 }

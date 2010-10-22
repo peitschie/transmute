@@ -35,7 +35,8 @@ namespace Transmute
         public ResourceMapper()
         {
             _dynamicType = DynamicAssemblyManager.DefineMapperType("ResourceMapper_" + GetHashCode());
-            _builder = new DynamicMethodBuilder<TContext>(this);
+             _builder = new DynamicMethodBuilder<TContext>(this);
+            //_builder = new DelegateBuilder<TContext>(this);
             _memberConsumers.Add(new DefaultMemberConsumer());
             _memberResolvers.Add(new IgnoreCaseNameMatcher());
             _defaultMaps.Add(new MapList<TContext>(this));
@@ -428,6 +429,7 @@ namespace Transmute
                 }
                 Type.CreateType();
                 Instance = Activator.CreateInstance(Type, false);
+                _builder.InitializeType();
                 IsInitialized = true;
             }
         }
