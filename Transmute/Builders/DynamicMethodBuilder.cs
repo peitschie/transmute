@@ -13,6 +13,7 @@ using System.Reflection.Emit;
 using EmitMapper.AST;
 using EmitMapper.AST.Nodes;
 using EmitMapper.AST.Interfaces;
+using System.Linq.Expressions;
 namespace Transmute.Builders
 {
     public class DynamicMethodBuilder<TContext> : AbstractBuilder<TContext>
@@ -109,9 +110,15 @@ namespace Transmute.Builders
 
             new AstReturn { returnValue = AstBuildHelper.ReadArgumentRV(1, typeof(TTo)), returnType = typeof(TTo)}.Compile(context);
             var name = convertMethod.Name;
+            Func<TFrom, TTo, IResourceMapper<TContext>, TContext, TTo> converter = null;
             return (tfrom, tto, from, to, mapper, contxt) => {
-                return (TTo)mapper.Type.InvokeMember(name, BindingFlags.InvokeMethod, null, null,
-                                             new object[]{from, to, mapper, contxt});
+                if(converter == null)
+                {
+                    converter = (Func<TFrom, TTo, IResourceMapper<TContext>, TContext, TTo>)Delegate.CreateDelegate(
+                                    typeof(Func<TFrom, TTo, IResourceMapper<TContext>, TContext, TTo>), null,
+                                    mapper.Type.GetMethod(name));
+                }
+                return converter((TFrom)from, (TTo)to, (IResourceMapper<TContext>)mapper, (TContext)contxt);
             };
         }
     }
