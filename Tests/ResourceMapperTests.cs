@@ -568,6 +568,7 @@ namespace Transmute.Tests
             _mapper.ConvertUsing<int, string>(Convert.ToString);
             _mapper.RegisterOneWayMapping<MultiSrc, MultiNestedDest>(mapping =>
             {
+                mapping.Set(to => to.Dest, () => new MultiDest());
                 mapping.Overlay(to => to.Dest, from => from.Src1);
                 mapping.Overlay(to => to.Dest, from => from.Src2);
             });
