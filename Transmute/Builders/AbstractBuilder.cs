@@ -24,8 +24,7 @@ namespace Transmute.Builders
            if(_mapper.DiagnosticsEnabled && !string.IsNullOrEmpty(_mapper.ExportedMapsDirectory))
            {
                var filename = string.Format("{0}_To_{1}.xml",
-                                            typeof(TFrom).FullName.Replace(".","-"),
-                                            typeof(TTo).FullName.Replace(".","-"));
+                                            typeof(TFrom).Name, typeof(TTo).Name);
                var mapEntry = new TypeToTypeMap();
                mapEntry.Members = map.Setters.Select(s => new MapMemberDescription {
                        order = s.SetOrder,
