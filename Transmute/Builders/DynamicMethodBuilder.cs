@@ -82,7 +82,8 @@ namespace Transmute.Builders
                             var remapMethod = AstBuildHelper.CallMethod(GetConvertMethod().MakeGenericMethod(setter.SourceType, setter.DestinationType),
                                                         AstBuildHelper.ReadArgumentRA(2, typeof(IResourceMapper<TContext>)),
                                                         new List<IAstStackItem>{
-                                                            AstBuildHelper.ReadMembersChain(AstBuildHelper.ReadArgumentRA(0, typeof(TFrom)), setter.SourceMember),
+                                                            AstBuildHelper.ReadMembersChain(AstBuildHelper.ReadArgumentRA(0, typeof(TFrom)),
+                                                                setter.SourceRoot.Union(setter.SourceMember).ToArray()),
                                                             AstBuildHelper.ReadMembersChain(AstBuildHelper.ReadArgumentRA(1, typeof(TTo)), setter.DestinationMember),
                                                             AstBuildHelper.ReadArgumentRA(3, typeof(TContext)),
                                                         });
@@ -93,7 +94,8 @@ namespace Transmute.Builders
                         }
                         else
                         {
-                            var source = AstBuildHelper.ReadMembersChain(AstBuildHelper.ReadArgumentRA(0, typeof(TFrom)), setter.SourceMember);
+                            var source = AstBuildHelper.ReadMembersChain(AstBuildHelper.ReadArgumentRA(0, typeof(TFrom)),
+                                                                         setter.SourceRoot.Union(setter.SourceMember).ToArray());
                             var destination = AstBuildHelper.WriteMembersChain(setter.DestinationMember,
                                                                                AstBuildHelper.ReadArgumentRA(1, typeof(TTo)),
                                                                                source);
