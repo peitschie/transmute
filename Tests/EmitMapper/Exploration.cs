@@ -90,6 +90,25 @@ namespace Transmute.Tests.EmitMapper
             type.CreateType();
             DynamicAssemblyManager.SaveAssembly();
         }
+
+        [Test]
+        public void Func_NotPassedByReference()
+        {
+            Func<int> func = () => 10;
+            var store = new TestFunction(ref func);
+            func = () => 12;
+            Assert.AreNotEqual(12, store._method());
+        }
+
+        private class TestFunction
+        {
+            public Func<int> _method;
+
+            public TestFunction(ref Func<int> method)
+            {
+                _method = method;
+            }
+        }
     }
 
     public class SourceObject
