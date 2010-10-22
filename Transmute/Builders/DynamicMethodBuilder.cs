@@ -29,6 +29,11 @@ namespace Transmute.Builders
             return typeof(IResourceMapper<TContext>).GetMethods().First(m => m.Name == "Map" && m.GetParameters().Length == 3);
         }
 
+        private static MethodInfo GetConstructOrThrowMethod()
+        {
+            return typeof(IResourceMapper<TContext>).GetMethod("ConstructOrThrow");
+        }
+
         private string GetFieldName<TFrom, TTo>()
         {
             return string.Format("{0}_{1}_{2}", typeof(TFrom).Name, typeof(TTo).Name, _fieldIndex++);
@@ -50,8 +55,11 @@ namespace Transmute.Builders
             var context = new CompilationContext(convertMethod.GetILGenerator());
 
             new AstWriteArgument(1, typeof(TTo), new AstIfNull(
-                (IAstRef)AstBuildHelper.ReadArgumentRA(1, typeof(TTo)), new AstNewObject(typeof(TTo), new IAstStackItem[0])))
-                .Compile(context);
+                (IAstRef)AstBuildHelper.ReadArgumentRA(1, typeof(TTo)),
+                AstBuildHelper.CastClass(AstBuildHelper.CallMethod(GetConstructOrThrowMethod(),
+                    AstBuildHelper.ReadArgumentRA(2, typeof(IResourceMapper<TContext>)),
+                    new List<IAstStackItem>{new AstTypeof{type = typeof(TTo)}}), typeof(TTo))
+                )).Compile(context);
 
             if(map.UpdatesContext)
             {
