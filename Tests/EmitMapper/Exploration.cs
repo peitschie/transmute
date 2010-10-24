@@ -10,6 +10,7 @@ using EmitMapper.AST.Interfaces;
 namespace Transmute.Tests.EmitMapper
 {
     [TestFixture]
+    [Explicit("Does not run under .NET... thought it does under mono.  Fun!")]
     public class Exploration
     {
         [Test]
