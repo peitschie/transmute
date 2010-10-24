@@ -21,6 +21,9 @@ namespace Transmute.Builders
 
         protected void ExportMapInformation<TFrom, TTo>(IMappingCollection<TFrom, TTo, TContext> map)
         {
+#if SILVERLIGHT
+           // Under silverlight there is no easy way to dump this mapping data for now...
+#else
            if(_mapper.DiagnosticsEnabled && !string.IsNullOrEmpty(_mapper.ExportedMapsDirectory))
            {
                var filename = string.Format("{0}_To_{1}.xml",
@@ -49,6 +52,7 @@ namespace Transmute.Builders
                    serializer.Serialize(outputStream, mapEntry);
                }
            }
+#endif
         }
 
         public abstract MapperAction<TContext> BuildAction<TFrom, TTo>(IMappingCollection<TFrom, TTo, TContext> map);

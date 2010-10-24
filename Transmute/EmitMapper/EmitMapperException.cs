@@ -2,7 +2,7 @@
 
 namespace EmitMapper
 {
-    public class EmitMapperException: ApplicationException
+    public class EmitMapperException: Exception
     {
         public EmitMapperException()
         { 

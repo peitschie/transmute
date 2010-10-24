@@ -1,5 +1,8 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Condition="'$(MSBuildToolsVersion)' == '3.5'">
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+  </PropertyGroup>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -12,11 +15,31 @@
     <RootNamespace>Transmute.Silverlight</RootNamespace>
     <AssemblyName>Transmute.Silverlight</AssemblyName>
     <TargetFrameworkIdentifier>Silverlight</TargetFrameworkIdentifier>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v3.0</TargetFrameworkVersion>
     <SilverlightVersion>$(TargetFrameworkVersion)</SilverlightVersion>
     <SilverlightApplication>false</SilverlightApplication>
     <ValidateXaml>true</ValidateXaml>
     <ThrowErrorsInValidation>true</ThrowErrorsInValidation>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>4.0</OldToolsVersion>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <!-- This property group is only here to support building this project using the 
        MSBuild 3.5 toolset. In order to work correctly with this older toolset, it needs 
@@ -55,8 +78,164 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Transmute\Builders\AbstractBuilder.cs">
+      <Link>Builders\AbstractBuilder.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\Builders\DelegateBuilder.cs">
+      <Link>Builders\DelegateBuilder.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\Builders\DynamicMethodBuilder.cs">
+      <Link>Builders\DynamicMethodBuilder.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\Builders\IDynamicTypeBuilder.cs">
+      <Link>Builders\IDynamicTypeBuilder.cs</Link>
+    </Compile>
     <Compile Include="..\Transmute\Delegates.cs">
       <Link>Delegates.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\EmitMapper\AST\CompilationContext.cs">
+      <Link>EmitMapper\AST\CompilationContext.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\EmitMapper\AST\Helpers\AstBuildHelper.cs">
+      <Link>EmitMapper\AST\Helpers\AstBuildHelper.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\EmitMapper\AST\Helpers\CompilationHelper.cs">
+      <Link>EmitMapper\AST\Helpers\CompilationHelper.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\EmitMapper\AST\ILCompilationException.cs">
+      <Link>EmitMapper\AST\ILCompilationException.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\EmitMapper\AST\Interfaces\IAstAddr.cs">
+      <Link>EmitMapper\AST\Interfaces\IAstAddr.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\EmitMapper\AST\Interfaces\IAstNode.cs">
+      <Link>EmitMapper\AST\Interfaces\IAstNode.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\EmitMapper\AST\Interfaces\IAstRef.cs">
+      <Link>EmitMapper\AST\Interfaces\IAstRef.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\EmitMapper\AST\Interfaces\IAstRefOrAddr.cs">
+      <Link>EmitMapper\AST\Interfaces\IAstRefOrAddr.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\EmitMapper\AST\Interfaces\IAstRefOrValue.cs">
+      <Link>EmitMapper\AST\Interfaces\IAstRefOrValue.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\EmitMapper\AST\Interfaces\IAstStackItem.cs">
+      <Link>EmitMapper\AST\Interfaces\IAstStackItem.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\EmitMapper\AST\Interfaces\IAstValue.cs">
+      <Link>EmitMapper\AST\Interfaces\IAstValue.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\EmitMapper\AST\Nodes\AstBox.cs">
+      <Link>EmitMapper\AST\Nodes\AstBox.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\EmitMapper\AST\Nodes\AstCallMethod.cs">
+      <Link>EmitMapper\AST\Nodes\AstCallMethod.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\EmitMapper\AST\Nodes\AstCallMethodVoid.cs">
+      <Link>EmitMapper\AST\Nodes\AstCallMethodVoid.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\EmitMapper\AST\Nodes\AstCastClass.cs">
+      <Link>EmitMapper\AST\Nodes\AstCastClass.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\EmitMapper\AST\Nodes\AstComplexNode.cs">
+      <Link>EmitMapper\AST\Nodes\AstComplexNode.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\EmitMapper\AST\Nodes\AstConstantInt32.cs">
+      <Link>EmitMapper\AST\Nodes\AstConstantInt32.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\EmitMapper\AST\Nodes\AstConstantNull.cs">
+      <Link>EmitMapper\AST\Nodes\AstConstantNull.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\EmitMapper\AST\Nodes\AstConstantString.cs">
+      <Link>EmitMapper\AST\Nodes\AstConstantString.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\EmitMapper\AST\Nodes\AstExceptionHandlingBlock.cs">
+      <Link>EmitMapper\AST\Nodes\AstExceptionHandlingBlock.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\EmitMapper\AST\Nodes\AstExprEquals.cs">
+      <Link>EmitMapper\AST\Nodes\AstExprEquals.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\EmitMapper\AST\Nodes\AstExprIsNull.cs">
+      <Link>EmitMapper\AST\Nodes\AstExprIsNull.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\EmitMapper\AST\Nodes\AstExprNot.cs">
+      <Link>EmitMapper\AST\Nodes\AstExprNot.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\EmitMapper\AST\Nodes\AstIf.cs">
+      <Link>EmitMapper\AST\Nodes\AstIf.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\EmitMapper\AST\Nodes\AstIfNull.cs">
+      <Link>EmitMapper\AST\Nodes\AstIfNull.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\EmitMapper\AST\Nodes\AstIfTernar.cs">
+      <Link>EmitMapper\AST\Nodes\AstIfTernar.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\EmitMapper\AST\Nodes\AstIndirectRead.cs">
+      <Link>EmitMapper\AST\Nodes\AstIndirectRead.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\EmitMapper\AST\Nodes\AstInitializeLocalVariable.cs">
+      <Link>EmitMapper\AST\Nodes\AstInitializeLocalVariable.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\EmitMapper\AST\Nodes\AstNewNullable.cs">
+      <Link>EmitMapper\AST\Nodes\AstNewNullable.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\EmitMapper\AST\Nodes\AstNewObject.cs">
+      <Link>EmitMapper\AST\Nodes\AstNewObject.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\EmitMapper\AST\Nodes\AstReadArgument.cs">
+      <Link>EmitMapper\AST\Nodes\AstReadArgument.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\EmitMapper\AST\Nodes\AstReadArrayItem.cs">
+      <Link>EmitMapper\AST\Nodes\AstReadArrayItem.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\EmitMapper\AST\Nodes\AstReadField.cs">
+      <Link>EmitMapper\AST\Nodes\AstReadField.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\EmitMapper\AST\Nodes\AstReadLocal.cs">
+      <Link>EmitMapper\AST\Nodes\AstReadLocal.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\EmitMapper\AST\Nodes\AstReadProperty.cs">
+      <Link>EmitMapper\AST\Nodes\AstReadProperty.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\EmitMapper\AST\Nodes\AstReadThis.cs">
+      <Link>EmitMapper\AST\Nodes\AstReadThis.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\EmitMapper\AST\Nodes\AstReturn.cs">
+      <Link>EmitMapper\AST\Nodes\AstReturn.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\EmitMapper\AST\Nodes\AstReturnVoid.cs">
+      <Link>EmitMapper\AST\Nodes\AstReturnVoid.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\EmitMapper\AST\Nodes\AstThrow.cs">
+      <Link>EmitMapper\AST\Nodes\AstThrow.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\EmitMapper\AST\Nodes\AstTypeof.cs">
+      <Link>EmitMapper\AST\Nodes\AstTypeof.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\EmitMapper\AST\Nodes\AstUnbox.cs">
+      <Link>EmitMapper\AST\Nodes\AstUnbox.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\EmitMapper\AST\Nodes\AstValueToAddr.cs">
+      <Link>EmitMapper\AST\Nodes\AstValueToAddr.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\EmitMapper\AST\Nodes\AstWriteArgument.cs">
+      <Link>EmitMapper\AST\Nodes\AstWriteArgument.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\EmitMapper\AST\Nodes\AstWriteField.cs">
+      <Link>EmitMapper\AST\Nodes\AstWriteField.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\EmitMapper\AST\Nodes\AstWriteLocal.cs">
+      <Link>EmitMapper\AST\Nodes\AstWriteLocal.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\EmitMapper\AST\Nodes\AstWriteProperty.cs">
+      <Link>EmitMapper\AST\Nodes\AstWriteProperty.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\EmitMapper\DynamicAssemblyManager.cs">
+      <Link>EmitMapper\DynamicAssemblyManager.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\EmitMapper\EmitMapperException.cs">
+      <Link>EmitMapper\EmitMapperException.cs</Link>
     </Compile>
     <Compile Include="..\Transmute\Exceptions\DuplicateMapperException.cs">
       <Link>Exceptions\DuplicateMapperException.cs</Link>
@@ -82,6 +261,9 @@
     <Compile Include="..\Transmute\IBidirectionMap.cs">
       <Link>IBidirectionMap.cs</Link>
     </Compile>
+    <Compile Include="..\Transmute\IMapBuilder.cs">
+      <Link>IMapBuilder.cs</Link>
+    </Compile>
     <Compile Include="..\Transmute\IMappingCollection.cs">
       <Link>IMappingCollection.cs</Link>
     </Compile>
@@ -90,6 +272,18 @@
     </Compile>
     <Compile Include="..\Transmute\Internal\DefaultMemberConsumer.cs">
       <Link>Internal\DefaultMemberConsumer.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\Internal\Diagnostics\MapMemberDescription.cs">
+      <Link>Internal\Diagnostics\MapMemberDescription.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\Internal\Diagnostics\MemberDescription.cs">
+      <Link>Internal\Diagnostics\MemberDescription.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\Internal\Diagnostics\TypeToTypeMap.cs">
+      <Link>Internal\Diagnostics\TypeToTypeMap.cs</Link>
+    </Compile>
+    <Compile Include="..\Transmute\Internal\Diagnostics\TypeToTypeName.cs">
+      <Link>Internal\Diagnostics\TypeToTypeName.cs</Link>
     </Compile>
     <Compile Include="..\Transmute\Internal\FastMemberAccessor\FieldAccessor.cs">
       <Link>Internal\FastMemberAccessor\FieldAccessor.cs</Link>
@@ -103,9 +297,6 @@
     <Compile Include="..\Transmute\Internal\FastMemberAccessor\PropertyAccessor.cs">
       <Link>Internal\FastMemberAccessor\PropertyAccessor.cs</Link>
     </Compile>
-    <Compile Include="..\Transmute\Internal\IgnoredSetter.cs">
-      <Link>Internal\IgnoredSetter.cs</Link>
-    </Compile>
     <Compile Include="..\Transmute\Internal\IMemberConsumer.cs">
       <Link>Internal\IMemberConsumer.cs</Link>
     </Compile>
@@ -118,8 +309,8 @@
     <Compile Include="..\Transmute\Internal\MappingCollection.cs">
       <Link>Internal\MappingCollection.cs</Link>
     </Compile>
-    <Compile Include="..\Transmute\Internal\MemberSetter.cs">
-      <Link>Internal\MemberSetter.cs</Link>
+    <Compile Include="..\Transmute\Internal\MemberEntry.cs">
+      <Link>Internal\MemberEntry.cs</Link>
     </Compile>
     <Compile Include="..\Transmute\Internal\OneWayMapAction.cs">
       <Link>Internal\OneWayMapAction.cs</Link>
@@ -217,9 +408,26 @@
       <Link>Internal\FastMemberAccessor\FuncBasedAccessor.cs</Link>
     </Compile>
   </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Silverlight\$(SilverlightVersion)\Microsoft.Silverlight.CSharp.targets" />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <Import Project="$(MSBuildExtensionsPath)\Microsoft\Silverlight\v2.0\Microsoft.Silverlight.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Silverlight\$(SilverlightVersion)\Microsoft.Silverlight.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
       <FlavorProperties GUID="{A1591282-1198-4647-A2B1-27E5FF5F6F3B}">
