@@ -87,9 +87,6 @@
     <Compile Include="..\Transmute\Builders\DynamicMethodBuilder.cs">
       <Link>Builders\DynamicMethodBuilder.cs</Link>
     </Compile>
-    <Compile Include="..\Transmute\Builders\IDynamicTypeBuilder.cs">
-      <Link>Builders\IDynamicTypeBuilder.cs</Link>
-    </Compile>
     <Compile Include="..\Transmute\Delegates.cs">
       <Link>Delegates.cs</Link>
     </Compile>

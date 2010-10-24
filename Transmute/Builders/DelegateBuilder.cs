@@ -16,7 +16,7 @@ namespace Transmute.Builders
         public DelegateBuilder(IResourceMapper<TContext> mapper) : base(mapper)
         { }
 
-        public override void InitializeType()
+        public override void FinalizeBuilder()
         {
         }
 

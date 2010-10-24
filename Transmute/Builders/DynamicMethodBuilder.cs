@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using EmitMapper;
 using Transmute.Internal.Diagnostics;
 using Transmute.Internal;
 using System.Xml.Serialization;
@@ -13,16 +14,35 @@ using System.Reflection.Emit;
 using EmitMapper.AST;
 using EmitMapper.AST.Nodes;
 using EmitMapper.AST.Interfaces;
-using System.Linq.Expressions;
 namespace Transmute.Builders
 {
     public class DynamicMethodBuilder<TContext> : AbstractBuilder<TContext>
     {
         private int _fieldIndex = 0;
-        private Dictionary<string, object> _constructorValues = new Dictionary<string, object>();
+        private readonly Dictionary<string, object> _constructorValues = new Dictionary<string, object>();
+        private readonly TypeBuilder _type;
 
         public DynamicMethodBuilder(IResourceMapper<TContext> mapper) : base(mapper)
-        { }
+        {
+            _type = DynamicAssemblyManager.DefineMapperType("ResourceMapper");
+        }
+
+        private static string GetMethodName(Type from, Type to)
+        {
+            return string.Format("Convert_{0}_{1}", from.Name, to.Name);
+        }
+
+        private MethodBuilder GetOrCreateConvertor(Type from, Type to)
+        {
+            var convertMethod = _type.DefineMethod(GetMethodName(from, to),
+                                                          MethodAttributes.Public | MethodAttributes.Static, to,
+                                      new[] { from, to, typeof(IResourceMapper<TContext>), typeof(TContext) });
+            convertMethod.DefineParameter(1, ParameterAttributes.None, "source");
+            convertMethod.DefineParameter(2, ParameterAttributes.None, "destination");
+            convertMethod.DefineParameter(3, ParameterAttributes.None, "mapper");
+            convertMethod.DefineParameter(4, ParameterAttributes.None, "context");
+            return convertMethod;
+        }
 
         private static MethodInfo GetConvertMethod()
         {
@@ -39,11 +59,13 @@ namespace Transmute.Builders
             return string.Format("{0}_{1}_{2}", typeof(TFrom).Name, typeof(TTo).Name, _fieldIndex++);
         }
 
-        public override void InitializeType()
+        public override void FinalizeBuilder()
         {
+            _type.CreateType();
+            Activator.CreateInstance(_type, false);
             foreach(var entry in _constructorValues)
             {
-                _mapper.Type.GetField(entry.Key).SetValue(null, entry.Value);
+                _type.GetField(entry.Key).SetValue(null, entry.Value);
             }
         }
 
@@ -51,7 +73,7 @@ namespace Transmute.Builders
         {
             ExportMapInformation(map);
 
-            var convertMethod = _mapper.GetOrCreateConvertor(typeof(TFrom), typeof(TTo));
+            var convertMethod = GetOrCreateConvertor(typeof(TFrom), typeof(TTo));
             var context = new CompilationContext(convertMethod.GetILGenerator());
 
             new AstWriteArgument(1, typeof(TTo), new AstIfNull(
@@ -63,7 +85,7 @@ namespace Transmute.Builders
 
             if(map.UpdatesContext)
             {
-                var funcField = _mapper.Type.DefineField(GetFieldName<TFrom, TTo>(),
+                var funcField = _type.DefineField(GetFieldName<TFrom, TTo>(),
                                                          typeof(Func<object, object, IResourceMapper<TContext>, TContext, TContext>),
                                                          FieldAttributes.Public | FieldAttributes.Static);
                 _constructorValues.Add(funcField.Name, map.ContextUpdater);
@@ -75,7 +97,7 @@ namespace Transmute.Builders
 
                 var contextUpdater = AstBuildHelper.CallMethod(
                            method,
-                           AstBuildHelper.ReadFieldRA(null, _mapper.Type.GetField(funcField.Name)),
+                           AstBuildHelper.ReadFieldRA(null, _type.GetField(funcField.Name)),
                            new List<IAstStackItem>{
                                 AstBuildHelper.ReadArgumentRV(0, typeof(TFrom)),
                                 AstBuildHelper.ReadArgumentRA(1, typeof(TTo)),
@@ -95,7 +117,7 @@ namespace Transmute.Builders
                 switch(setter.SourceObjectType)
                 {
                     case MemberEntryType.Function:
-                        var funcField = _mapper.Type.DefineField(GetFieldName<TFrom, TTo>(), setter.SourceFunc.GetType(),
+                        var funcField = _type.DefineField(GetFieldName<TFrom, TTo>(), setter.SourceFunc.GetType(),
                                                                  FieldAttributes.Public | FieldAttributes.Static);
                         _constructorValues.Add(funcField.Name, setter.SourceFunc);
 //                        var sourceFuncRoot = setter.SourceRoot.Length > 0 ?
@@ -104,7 +126,7 @@ namespace Transmute.Builders
                         var method = funcField.FieldType.GetMethod("Invoke", new []{typeof(object), typeof(object), typeof(IResourceMapper<TContext>), typeof(TContext)});
                         var sourceFunc = AstBuildHelper.CallMethod(
                                    method,
-                                   AstBuildHelper.ReadFieldRA(null, _mapper.Type.GetField(funcField.Name)),
+                                   AstBuildHelper.ReadFieldRA(null, _type.GetField(funcField.Name)),
                                    new List<IAstStackItem>{
                                         AstBuildHelper.ReadArgumentRV(0, typeof(TFrom)),
                                         AstBuildHelper.ReadArgumentRA(1, typeof(TTo)),
@@ -170,7 +192,7 @@ namespace Transmute.Builders
                 {
                     converter = (Func<TFrom, TTo, IResourceMapper<TContext>, TContext, TTo>)Delegate.CreateDelegate(
                                     typeof(Func<TFrom, TTo, IResourceMapper<TContext>, TContext, TTo>), null,
-                                    mapper.Type.GetMethod(name));
+                                    _type.GetMethod(name));
                 }
                 return converter((TFrom)from, (TTo)to, (IResourceMapper<TContext>)mapper, (TContext)contxt);
             };

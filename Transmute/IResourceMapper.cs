@@ -1,11 +1,12 @@
 using System;
 using System.Collections.Generic;
+using Transmute.Builders;
 using Transmute.Internal;
 using Transmute.Maps;
 
 namespace Transmute
 {
-    public interface IResourceMapper<TContext> : IDynamicTypeBuilder<TContext>
+    public interface IResourceMapper<TContext>
     {
         bool CanConstruct(Type type);
         object ConstructOrThrow(Type type);
@@ -50,7 +51,6 @@ namespace Transmute
 
         void InitializeMap();
 
-        object Instance { get; }
         IMapBuilder<TContext> Builder { get; }
         string ExportedMapsDirectory { get; }
         bool DiagnosticsEnabled { get; }
@@ -58,5 +58,11 @@ namespace Transmute
         IPriorityList<IMemberConsumer> MemberConsumers { get; }
         IPriorityList<IMemberResolver> MemberResolvers { get; }
         IList<ITypeMap<TContext>> TypeMaps { get; }
+    }
+
+    public enum MapBuilder
+    {
+        Delegate,
+        Emit
     }
 }

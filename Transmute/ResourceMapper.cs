@@ -11,8 +11,6 @@ using Transmute.Maps;
 using Transmute.MemberResolver;
 using System.IO;
 using Transmute.Builders;
-using System.Reflection.Emit;
-using EmitMapper;
 
 namespace Transmute
 {
@@ -29,14 +27,23 @@ namespace Transmute
         private readonly PriorityList<IMemberConsumer> _memberConsumers = new PriorityList<IMemberConsumer>();
         private readonly PriorityList<IMemberResolver> _memberResolvers = new PriorityList<IMemberResolver>();
         private bool _diagnosticsEnabled = true;
-        private IMapBuilder<TContext> _builder;
-        private readonly TypeBuilder _dynamicType;
-
-        public ResourceMapper()
+        private readonly IMapBuilder<TContext> _builder;
+        
+        
+        public ResourceMapper(MapBuilder builderType=MapBuilder.Delegate)
         {
-            _dynamicType = DynamicAssemblyManager.DefineMapperType("ResourceMapper_" + GetHashCode());
-             _builder = new DynamicMethodBuilder<TContext>(this);
-            //_builder = new DelegateBuilder<TContext>(this);
+            switch (builderType)
+            {
+                case MapBuilder.Delegate:
+                    _builder = new DelegateBuilder<TContext>(this);
+                    break;
+                case MapBuilder.Emit:
+                    
+                    _builder = new DynamicMethodBuilder<TContext>(this);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException("builderType");
+            }
             _memberConsumers.Add(new DefaultMemberConsumer());
             _memberResolvers.Add(new IgnoreCaseNameMatcher());
             _defaultMaps.Add(new MapList<TContext>(this));
@@ -45,24 +52,6 @@ namespace Transmute
             _defaultMaps.Add(new MapByVal<TContext>());
             _defaultMaps.Add(new MapNonNullableToNullable<TContext>(this));
             _defaultMaps.Add(new MapNullableToNullable<TContext>(this));
-        }
-
-
-        private static string GetMethodName(Type from, Type to)
-        {
-            return string.Format("Convert_{0}_{1}", from.Name, to.Name);
-        }
-
-        public MethodBuilder GetOrCreateConvertor(Type from, Type to)
-        {
-            var convertMethod = _dynamicType.DefineMethod(GetMethodName(from, to),
-                                                          MethodAttributes.Public | MethodAttributes.Static, to,
-                                      new []{from, to, typeof(IResourceMapper<TContext>), typeof(TContext)});
-            convertMethod.DefineParameter(1, ParameterAttributes.None, "source");
-            convertMethod.DefineParameter(2, ParameterAttributes.None, "destination");
-            convertMethod.DefineParameter(3, ParameterAttributes.None, "mapper");
-            convertMethod.DefineParameter(4, ParameterAttributes.None, "context");
-            return convertMethod;
         }
 
         public bool CanConstruct(Type type)
@@ -94,8 +83,6 @@ namespace Transmute
             return constructor();
         }
 
-        public TypeBuilder Type { get { return _dynamicType; } }
-        public object Instance { get; private set; }
         public IMapBuilder<TContext> Builder { get { return _builder; } }
         public string ExportedMapsDirectory { get; private set; }
         public bool DiagnosticsEnabled { get {return _diagnosticsEnabled;} }
@@ -427,9 +414,7 @@ namespace Transmute
                     }
                     throw new MapperException(string.Format("Unable to complete maps.  One or more required maps could not be found.\n{0}", reportString));
                 }
-                Type.CreateType();
-                Instance = Activator.CreateInstance(Type, false);
-                _builder.InitializeType();
+                _builder.FinalizeBuilder();
                 IsInitialized = true;
             }
         }
