@@ -1,0 +1,3 @@
+RequiresMappingByDefault - ensure logic remains constant
+Maps with no actual setters - null mappers?
+Mapping object to object - throw exception? Ignore by default?
