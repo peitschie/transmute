@@ -111,7 +111,6 @@ namespace Transmute.Internal
             {
                 throw new ArgumentException(string.Format("Target member {0} must be writeable", member));
             }
-            AssertIsNotLocked();
             var setter = MapEntry(member);
             setter.DestinationType = member.Last().ReturnType();
             setter.Remap = false;
@@ -146,7 +145,6 @@ namespace Transmute.Internal
             {
                 throw new ArgumentException(string.Format("Target member {0} must be writeable", to));
             }
-            AssertIsNotLocked();
             var setter = MapEntry(to);
             setter.DestinationType = toPropertyType;
             setter.SourceObjectType = MemberEntryType.Member;
@@ -175,7 +173,6 @@ namespace Transmute.Internal
             {
                 throw new ArgumentException(string.Format("Target member {0} must be writeable", toChain));
             }
-            AssertIsNotLocked();
             var setter = MapEntry(toChain);
             setter.DestinationType = typeof(TPropertyType);
             setter.SourceFunc = (MemberSource<TContext>)((from, to, mapper, context) => getter());
@@ -205,7 +202,6 @@ namespace Transmute.Internal
             {
                 throw new ArgumentException(string.Format("Target member {0} must be writeable", toChain));
             }
-            AssertIsNotLocked();
             var setter = MapEntry(toChain);
             setter.DestinationType = typeof(TPropertyType);
             setter.SourceFunc = (MemberSource<TContext>)((from, to, mapper, context) => getter((TFrom)from, (TTo)to, mapper, context));
@@ -245,16 +241,9 @@ namespace Transmute.Internal
         public IMappingCollection<TFrom, TTo, TContext> IgnoreMember(MemberInfo member)
         {
             if(member == null) throw new ArgumentNullException("member");
-            AssertIsNotLocked();
             var setter = MapEntry(member);
             setter.IsIgnored = true;
             return this;
-        }
-
-        private void AssertIsNotLocked()
-        {
-            if (_isAutomapped)
-                throw new MapperException("Automapping has been completed.  No further overrides can be performed");
         }
 
         public IMappingCollection<TFrom, TTo, TContext> SetChildContext(Func<TFrom, TTo, IResourceMapper<TContext>, TContext, TContext> updateContext)
