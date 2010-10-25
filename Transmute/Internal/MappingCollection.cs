@@ -207,7 +207,7 @@ namespace Transmute.Internal
             setter.SourceFunc = (MemberSource<TContext>)((from, to, mapper, context) => getter((TFrom)from, (TTo)to, mapper, context));
             setter.SourceType = typeof(TGetterType);
             setter.SourceObjectType = MemberEntryType.Function;
-            setter.Remap = remap ?? RequiresRemappingByDefault(typeof(TGetterType), typeof(TPropertyType), true);
+            setter.Remap = remap ?? RequiresRemappingByDefault(typeof(TPropertyType), typeof(TGetterType), true);
             if(!setter.Remap)
             {
                 VerifyReturnType(typeof(TPropertyType), typeof(TGetterType));
