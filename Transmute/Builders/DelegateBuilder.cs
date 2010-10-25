@@ -71,7 +71,11 @@ namespace Transmute.Builders
                 }
             }
 
-            if(map.UpdatesContext)
+            if(action == null)
+            {
+                return (tfrom, tto, from, to, mapper, context) => to;
+            }
+            else if(map.UpdatesContext)
             {
                 return (tfrom, tto, from, to, mapper, context) =>
                     {
