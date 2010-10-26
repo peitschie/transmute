@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using NGineer;
 using NUnit.Framework;
 using Transmute.Exceptions;
+using Transmute.Maps;
 using Transmute.Tests.Types;
 using System.IO;
 
@@ -581,6 +582,52 @@ namespace Transmute.Tests
             Assert.AreEqual(resourceObj.Src1.Property1, domainObj.Dest.Property1);
         }
 
+        [Test]
+        public void RegisterOneWayMapping_With_ExistingTypeMaps_Dont_ThrowDuplicateException()
+        {
+            _mapper.RegisterMapping(new MapAnything());
+            Assert.IsTrue(_mapper.CanMap(typeof(ResourceClassSimple), typeof(ResourceClassSimple)));
+            Assert.DoesNotThrow(() => _mapper.RegisterOneWayMapping<ResourceClassSimple, ResourceClassSimple>());
+        }
+
+        [Test]
+        public void ConvertUsing_With_ExistingTypeMaps_Dont_ThrowDuplicateException()
+        {
+            _mapper.RegisterMapping(new MapAnything());
+            Assert.IsTrue(_mapper.CanMap(typeof(ResourceClassSimple), typeof(ResourceClassSimple)));
+            Assert.DoesNotThrow(() => _mapper.ConvertUsing<ResourceClassSimple, ResourceClassSimple>(o => null));
+        }
+
+        [Test]
+        public void RegisterMapping_ExistingTypeMaps_Dont_ThrowDuplicateException()
+        {
+            _mapper.RegisterMapping(new MapAnything());
+            Assert.IsTrue(_mapper.CanMap(typeof(ResourceClassSimple), typeof(ResourceClassSimple)));
+            Assert.DoesNotThrow(() => _mapper.RegisterMapping(new MapAnything()));
+        }
+
+
+        [Test]
+        public void Type_With_RegisteredTypeMaps_RegisteredMapTakesPrecedence()
+        {
+            _mapper.RegisterMapping(new MapAnything());
+            _mapper.RegisterOneWayMapping<ResourceClassSimple, ResourceClassSimple>();
+            _mapper.RegisterMapping(new MapAnything());
+            _mapper.InitializeMap();
+            _mapper.Map(new ResourceClassSimple(), new ResourceClassSimple(), null);
+        }
+
+        [Test]
+        public void Type_With_RegisteredConvertUsing_RegisteredMapTakesPrecedence()
+        {
+            _mapper.RegisterMapping(new MapAnything());
+            _mapper.ConvertUsing<ResourceClassSimple, ResourceClassSimple>(o => o);
+            _mapper.RegisterMapping(new MapAnything());
+            _mapper.InitializeMap();
+            _mapper.Map(new ResourceClassSimple(), new ResourceClassSimple(), null);
+        }
+
+
         #region Uninitialized mapper cannot map or construct
         [Test]
         public void MapperIsNotInitialized_Map_ThrowsException()
@@ -622,6 +669,19 @@ namespace Transmute.Tests
             Assert.Throws<MapperInitializedException>(() => _mapper.ConvertUsing(typeof(ResourceClassSimple), typeof(int), o => 0));
         }
         #endregion
+    }
+
+    public class MapAnything : ITypeMap<object>
+    {
+        public bool CanMap(Type from, Type to)
+        {
+            return from == typeof(ResourceClassSimple);
+        }
+
+        public MapperAction<object> GetMapper(Type fromType, Type toType)
+        {
+            return (tfrom, tto, from, to, mapper, context) => { throw new NotImplementedException(); };
+        }
     }
 
     public class ClassSimpleOverrides<TContext> : OneWayMap<ResourceClassSimple, DomainClassSimple, TContext>

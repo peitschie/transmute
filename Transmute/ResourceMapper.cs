@@ -186,7 +186,7 @@ namespace Transmute
         public void RegisterMapping(ITypeMap<TContext> map)
         {
             AssertIsNotInitialized();
-            _maps.Add(map);
+            _defaultMaps.Add(map);
             if(_diagnosticsEnabled)
                 _mapCreationInfo.Add(new MapInfoEntry(map));
         }
@@ -292,7 +292,9 @@ namespace Transmute
             RequireOneWayMap<TFrom, TTo>(stackTrace != null ? stackTrace.ToString() : "unknown");
             var map = new MapObject<TFrom, TTo, TContext>(this);
             AssertNoExistingMaps(typeof(TFrom), typeof(TTo));
-            RegisterMapping(map);
+            _maps.Add(map);
+            if(_diagnosticsEnabled)
+                _mapCreationInfo.Add(new MapInfoEntry(map));
             if (overrides != null)
                 map.AcceptOverrides(overrides);
         }
