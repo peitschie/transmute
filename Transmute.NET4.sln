@@ -1,13 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Transmute.Tests", "Tests\Transmute.Tests.csproj", "{FE583FE4-D71E-4F7C-9B45-51617B4313BB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Transmute.Tests", "Tests\Transmute.NET4.Tests.csproj", "{FE583FE4-D71E-4F7C-9B45-51617B4313BB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Transmute", "Transmute\Transmute.csproj", "{1FA8F517-F6E0-433F-AD19-E38F134E5DD1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Transmute", "Transmute\Transmute.NET4.csproj", "{1FA8F517-F6E0-433F-AD19-E38F134E5DD1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Transmute.Benchmark", "Transmute.Benchmark\Transmute.Benchmark.csproj", "{D18F12A8-B6E0-4691-B67C-039F4A6A6F3F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Transmute.Benchmark", "Transmute.Benchmark\Transmute.NET4.Benchmark.csproj", "{D18F12A8-B6E0-4691-B67C-039F4A6A6F3F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Transmute.EmitHelper", "Transmute.EmitHelper\Transmute.EmitHelper.csproj", "{BDFBCFCD-F2B4-4379-8C01-FBB92139D84C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Transmute.EmitHelper", "Transmute.EmitHelper\Transmute.NET4.EmitHelper.csproj", "{BDFBCFCD-F2B4-4379-8C01-FBB92139D84C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Transmute.Silverlight", "Transmute.Silverlight\Transmute.Silverlight.csproj", "{D9E83D2D-9F3D-4594-B978-9853400F2AC7}"
 EndProject
