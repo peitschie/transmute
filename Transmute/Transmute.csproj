@@ -149,6 +149,8 @@
     <Compile Include="Builders\DynamicMethodBuilder.cs" />
     <Compile Include="Builders\AbstractBuilder.cs" />
     <Compile Include="EmitMapper\AST\Nodes\AstWriteArgument.cs" />
+    <Compile Include="IMap.cs" />
+    <Compile Include="Internal\FuncBasedMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

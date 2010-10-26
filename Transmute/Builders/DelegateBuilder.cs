@@ -39,11 +39,11 @@ namespace Transmute.Builders
                     case MemberEntryType.Function:
                         if(setter.Remap)
                         {
+                            var remapper = _mapper.GetMapper(setter.SourceType, setter.DestinationType);
                             action += (tfrom, tto, from, to, mapper, context) => {
                                 var dest = toAccessor.Get(to);
-                                toSetter(to, mapper.Map(setter.SourceType, setter.DestinationType,
-                                               ((MemberSource<TContext>)setter.SourceFunc)(from, to, mapper, context),
-                                               dest, context), mapper, context);
+                                toSetter(to, remapper.MapObject(((MemberSource<TContext>)setter.SourceFunc)(from, to, mapper, context),
+                                               dest, mapper, context), mapper, context);
                             };
                         }
                         else
@@ -56,9 +56,9 @@ namespace Transmute.Builders
                         var fromAccessor = MapperUtils.CreateAccessorChain(setter.SourceRoot.Union(setter.SourceMember));
                         if(setter.Remap)
                         {
+                            var remapper = _mapper.GetMapper(setter.SourceType, setter.DestinationType);
                             action += (tfrom, tto, from, to, mapper, context) =>
-                                toSetter(to, mapper.Map(setter.SourceType, setter.DestinationType,
-                                                    fromAccessor.Get(from), toAccessor.Get(to), context), mapper, context);
+                                toSetter(to, remapper.MapObject(fromAccessor.Get(from), toAccessor.Get(to), mapper, context), mapper, context);
                         }
                         else
                         {

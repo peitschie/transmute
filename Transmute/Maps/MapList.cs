@@ -54,6 +54,7 @@ namespace Transmute.Maps
 
                 var toList = (IList)to;
                 toList.Clear();
+                
                 MapperUtils.CopyToList((IEnumerable)from, toList, _fromEntryType, _toEntryType, mapper, context);
 
                 return to;   

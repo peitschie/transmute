@@ -20,6 +20,7 @@ namespace Transmute
         private readonly object _initializeLock = new object();
         private readonly Dictionary<Type, Func<object>> _constructors = new Dictionary<Type, Func<object>>();
         private readonly TypeDictionary<MapperAction<TContext>> _mapCache = new TypeDictionary<MapperAction<TContext>>();
+        private readonly TypeDictionary<IMap<TContext>> _mapInterfaces = new TypeDictionary<IMap<TContext>>();
         private readonly TypeDictionary<RequiredMapEntry> _requiredMaps = new TypeDictionary<RequiredMapEntry>();
         private readonly List<MapInfoEntry> _mapCreationInfo = new List<MapInfoEntry>();
         private readonly List<ITypeMap<TContext>> _defaultMaps = new List<ITypeMap<TContext>>();
@@ -103,6 +104,7 @@ namespace Transmute
             AssertNoExistingMaps(typeof(TFrom), typeof(TTo));
             MapperAction<TContext> mapperAction = (tf, tt, from, to, mapper, context) => convert((TFrom)from, (TTo)to, mapper, context);
             _mapCache.Add(typeof(TFrom), typeof(TTo), mapperAction);
+            SetMapper(typeof(TFrom), typeof(TTo), mapperAction);
             if(_diagnosticsEnabled)
                 _mapCreationInfo.Add(new MapInfoEntry(mapperAction));
         }
@@ -118,6 +120,7 @@ namespace Transmute
             AssertNoExistingMaps(from, to);
             MapperAction<TContext> mapperAction = (tf, tt, ofrom, oto, mapper, context) => convert(ofrom, oto, mapper, context);
             _mapCache.Add(from, to, mapperAction);
+            SetMapper(from, to, mapperAction);
             if(_diagnosticsEnabled)
                 _mapCreationInfo.Add(new MapInfoEntry(mapperAction));
         }
@@ -349,6 +352,46 @@ namespace Transmute
             return setter;
         }
 
+        public IMap<TContext> GetMapper(Type from, Type to)
+        {
+            IMap<TContext> mapper;
+            if(!_mapInterfaces.TryGetValue(from, to, out mapper))
+            {
+                if(IsInitialized)
+                {
+                    var additionalInfo = string.Empty;
+                    if (CanMap(from, to))
+                    {
+                        additionalInfo = " A map creator is available, so it is likely a RequireMap call is missing on the resource mapper setup";
+                    }
+                    throw new MapperException(string.Format("Unable to map from {0} to {1}.{2}", from, to, additionalInfo));
+                }
+                mapper = (IMap<TContext>)typeof(FuncBasedMap<,,>).MakeGenericType(from, to, typeof(TContext))
+                    .GetConstructor(new Type[0]).Invoke(new object[0]);
+                _mapInterfaces.Add(from, to, mapper);
+            }
+            return (IMap<TContext>)mapper;
+        }
+
+
+        public IMap<TFrom, TTo, TContext> GetMapper<TFrom, TTo>()
+        {
+            return (IMap<TFrom, TTo, TContext>)GetMapper(typeof(TFrom), typeof(TTo));
+        }
+
+        private void InternalSetMapper<TFrom, TTo>(MapperAction<TContext> action)
+        {
+            ((FuncBasedMap<TFrom, TTo, TContext>)GetMapper<TFrom, TTo>()).ConvertMethod =
+                (from, to, mapper, context) => (TTo)action(typeof(TFrom), typeof(TTo), from, to, mapper, context);
+        }
+
+        private void SetMapper(Type from, Type to, MapperAction<TContext> action)
+        {
+            GetType().GetMethod("InternalSetMapper", BindingFlags.Default | BindingFlags.NonPublic | BindingFlags.Instance)
+                .MakeGenericMethod(from, to)
+                .Invoke(this, new[] { action });
+        }
+
         public void DeactivateDiagnostics()
         {
             _diagnosticsEnabled = false;
@@ -388,7 +431,7 @@ namespace Transmute
                         var fromType = requiredMap.Value.Type1;
                         var toType = requiredMap.Value.Type2;
                         // This will initialize the map cache for these items
-                        var map = _maps.LastOrDefault(m => m.CanMap(fromType, toType)) 
+                        var map = _maps.LastOrDefault(m => m.CanMap(fromType, toType))
                             ?? _defaultMaps.LastOrDefault(m => m.CanMap(fromType, toType));
                         if (map == null)
                         {
@@ -401,6 +444,7 @@ namespace Transmute
                                 initializableMap.Initialize();
                             var setter = map.GetMapper(fromType, toType);
                             _mapCache.Add(fromType, toType, setter);
+                            SetMapper(fromType, toType, setter);
                         }
                     }
                     uninitialisedMaps = _requiredMaps.Where(e => !_mapCache.ContainsKey(e.Value.Type1, e.Value.Type2)
@@ -415,6 +459,10 @@ namespace Transmute
                             missingMap.Type2, string.Join(", ", missingMap.Messages.ToArray())));    
                     }
                     throw new MapperException(string.Format("Unable to complete maps.  One or more required maps could not be found.\n{0}", reportString));
+                }
+                if(_mapInterfaces.Any(m => !m.Value.IsInitialized))
+                {
+                    throw new MapperException(string.Format("Unable to complete maps.  One or more required maps could not be found."));
                 }
                 _builder.FinalizeBuilder();
                 IsInitialized = true;

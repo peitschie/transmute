@@ -26,6 +26,8 @@ namespace Transmute
         void RequireTwoWayMap<TType1, TType2>(string description);
 
         bool CanMap(Type from, Type to);
+        IMap<TContext> GetMapper(Type from, Type to);
+        IMap<TFrom, TTo, TContext> GetMapper<TFrom, TTo>();
         TTo Map<TFrom, TTo>(TFrom from, TTo to, TContext context);
         TTo Map<TFrom, TTo>(TFrom from, TContext context);
         object Map(Type fromType, Type toType, object from, object to, TContext context);
