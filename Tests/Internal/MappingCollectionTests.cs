@@ -98,7 +98,7 @@ namespace Transmute.Tests.Internal
         [Test]
         public void Set_ImplicitConvert_Expression_Int_To_NullableInt_ThrowsException()
         {
-            var exception = Assert.Throws<MemberMappingException>(() => _collection.Set(to => to.Property1, (from, to, mapper, context) => (int?) null));
+            var exception = Assert.Throws<MemberMappingException>(() => _collection.Set(to => to.Property1, (from, to, mapper, context) => (int?) null, false));
             Assert.AreEqual(typeof(ClassWithSeveralPropertiesSrcNullable), exception.From);
             Assert.AreEqual(typeof(ClassWithSeveralPropertiesDest), exception.To);
             Assert.IsTrue(exception.Message.Contains(typeof(int?).ToString()));
