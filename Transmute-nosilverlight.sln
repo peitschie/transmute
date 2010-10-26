@@ -1,0 +1,41 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Transmute.Tests", "Tests\Transmute.Tests.csproj", "{FE583FE4-D71E-4F7C-9B45-51617B4313BB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Transmute", "Transmute\Transmute.csproj", "{1FA8F517-F6E0-433F-AD19-E38F134E5DD1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Transmute.Benchmark", "Transmute.Benchmark\Transmute.Benchmark.csproj", "{D18F12A8-B6E0-4691-B67C-039F4A6A6F3F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Transmute.EmitHelper", "Transmute.EmitHelper\Transmute.EmitHelper.csproj", "{BDFBCFCD-F2B4-4379-8C01-FBB92139D84C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1FA8F517-F6E0-433F-AD19-E38F134E5DD1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1FA8F517-F6E0-433F-AD19-E38F134E5DD1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1FA8F517-F6E0-433F-AD19-E38F134E5DD1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1FA8F517-F6E0-433F-AD19-E38F134E5DD1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BDFBCFCD-F2B4-4379-8C01-FBB92139D84C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BDFBCFCD-F2B4-4379-8C01-FBB92139D84C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BDFBCFCD-F2B4-4379-8C01-FBB92139D84C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BDFBCFCD-F2B4-4379-8C01-FBB92139D84C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D18F12A8-B6E0-4691-B67C-039F4A6A6F3F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D18F12A8-B6E0-4691-B67C-039F4A6A6F3F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D18F12A8-B6E0-4691-B67C-039F4A6A6F3F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D18F12A8-B6E0-4691-B67C-039F4A6A6F3F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FE583FE4-D71E-4F7C-9B45-51617B4313BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE583FE4-D71E-4F7C-9B45-51617B4313BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FE583FE4-D71E-4F7C-9B45-51617B4313BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FE583FE4-D71E-4F7C-9B45-51617B4313BB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = Tests\Transmute.Tests.csproj
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
