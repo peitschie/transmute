@@ -29,19 +29,17 @@ namespace Transmute.Maps
             var toEntryType = toType.GetEnumerableElementType();
             var constructor = typeof(List<>).MakeGenericType(toEntryType).DefaultConstructor().CompileConstructor();
             _mapper.RequireOneWayMap(fromEntryType, toEntryType, "MapList");
-            return new ListMapperEntry(fromEntryType, toEntryType, constructor).Map;
+            return new ListMapperEntry(_mapper.GetMapper(fromEntryType, toEntryType), constructor).Map;
         }
 
         private class ListMapperEntry
         {
-            private readonly Type _fromEntryType;
-            private readonly Type _toEntryType;
+            private readonly IMap<TContext> _typeMapper;
             private readonly Func<object> _constructor;
 
-            public ListMapperEntry(Type fromEntryType, Type toEntryType, Func<object> constructor)
+            public ListMapperEntry(IMap<TContext> typeMapper, Func<object> constructor)
             {
-                _fromEntryType = fromEntryType;
-                _toEntryType = toEntryType;
+                _typeMapper = typeMapper;
                 _constructor = constructor;
             }
 
@@ -54,8 +52,8 @@ namespace Transmute.Maps
 
                 var toList = (IList)to;
                 toList.Clear();
-                
-                MapperUtils.CopyToList((IEnumerable)from, toList, _fromEntryType, _toEntryType, mapper, context);
+
+                MapperUtils.CopyToList((IEnumerable)from, toList, _typeMapper, mapper, context);
 
                 return to;   
             }

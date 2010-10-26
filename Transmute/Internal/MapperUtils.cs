@@ -120,13 +120,13 @@ namespace Transmute.Internal
             return CreateAccessorChain(member.GetExpressionChain());
         }
 
-        public static void CopyToList<TContext>(IEnumerable source, IList destination, Type fromEntryType, Type toEntryType, IResourceMapper<TContext> mapper, TContext context)
+        public static void CopyToList<TContext>(IEnumerable source, IList destination, IMap<TContext> mapper, IResourceMapper<TContext> obseleteMapper, TContext context)
         {
             foreach (var fromEntry in source)
             {
                 if (fromEntry != null)
                 {
-                    var toEntry = mapper.Map(fromEntryType, toEntryType, fromEntry, null, context);
+                    var toEntry = mapper.MapObject(fromEntry, null, obseleteMapper, context);
                     destination.Add(toEntry);
                 }
                 else
@@ -136,10 +136,10 @@ namespace Transmute.Internal
             }
         }
 
-        public static void CopyToArray<TContext>(IEnumerable source, ref Array destination, Type fromEntryType, Type toEntryType, IResourceMapper<TContext> mapper, TContext context)
+        public static void CopyToArray<TContext>(IEnumerable source, ref Array destination, Type toEntryType, IMap<TContext> mapper, IResourceMapper<TContext> obseleteMapper, TContext context)
         {
             var toList = new List<object>();
-            CopyToList(source, toList, fromEntryType, toEntryType, mapper, context);
+            CopyToList(source, toList, mapper, obseleteMapper, context);
 
             if (destination == null || destination.Length != toList.Count)
             {

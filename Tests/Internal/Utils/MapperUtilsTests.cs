@@ -116,16 +116,16 @@ namespace Transmute.Tests.Internal.Utils
         public void CopyToList_CallsMapperWithContext()
         {
             var context = new object();
-            var mapper = new Mock<IResourceMapper<object>>();
+            var mapper = new Mock<IMap<object>>();
             mapper.Setup(
-                c => c.Map(typeof (int), typeof (string), It.IsAny<object>(), It.IsAny<object>(), It.IsAny<object>()))
-                .Returns<Type, Type, object, object, object>((tfrom, tto, from, to, ctx) => from.ToString());
+                c => c.MapObject(It.IsAny<object>(), It.IsAny<object>(), It.IsAny<IResourceMapper<object>>(), It.IsAny<object>()))
+                .Returns<object, object, IResourceMapper<object>, object>((from, to, mappr, ctx) => from.ToString());
             var destinationList = new List<string>();
-            MapperUtils.CopyToList(new []{1,2,3}, destinationList, typeof(int), typeof(string), mapper.Object, context);
+            MapperUtils.CopyToList(new []{1,2,3}, destinationList, mapper.Object, null, context);
 
-            mapper.Verify(c => c.Map(typeof (int), typeof (string), 1, It.IsAny<object>(), context));
-            mapper.Verify(c => c.Map(typeof (int), typeof (string), 2, It.IsAny<object>(), context));
-            mapper.Verify(c => c.Map(typeof (int), typeof (string), 3, It.IsAny<object>(), context));
+            mapper.Verify(c => c.MapObject(1, It.IsAny<object>(), null, context));
+            mapper.Verify(c => c.MapObject(2, It.IsAny<object>(), null, context));
+            mapper.Verify(c => c.MapObject(3, It.IsAny<object>(), null, context));
             Assert.AreEqual(new []{"1","2","3"}, destinationList.ToArray());
         }
 
@@ -133,17 +133,17 @@ namespace Transmute.Tests.Internal.Utils
         public void CopyToList_CallsMapperWithContext_NullEntries()
         {
             var context = new object();
-            var mapper = new Mock<IResourceMapper<object>>();
+            var mapper = new Mock<IMap<object>>();
             mapper.Setup(
-                c => c.Map(typeof(int?), typeof(string), It.IsAny<object>(), It.IsAny<object>(), It.IsAny<object>()))
-                .Returns<Type, Type, object, object, object>((tfrom, tto, from, to, ctx) => from == null ? null : from.ToString());
+                c => c.MapObject(It.IsAny<object>(), It.IsAny<object>(), It.IsAny<IResourceMapper<object>>(), It.IsAny<object>()))
+                .Returns<object, object, IResourceMapper<object>, object>((from, to, mappr, ctx) => from == null ? null : from.ToString());
             var destinationList = new List<string>();
-            MapperUtils.CopyToList(new int?[] { 1, null, 3 }, destinationList, typeof(int?), typeof(string), mapper.Object, context);
+            MapperUtils.CopyToList(new int?[] { 1, null, 3 }, destinationList, mapper.Object, null, context);
 
-            mapper.Verify(c => c.Map(typeof(int?), typeof(string), 1, It.IsAny<object>(), context));
-            mapper.Verify(c => c.Map(typeof(int?), typeof(string), null, It.IsAny<object>(), context), Times.Never());
-            mapper.Verify(c => c.Map(typeof(int?), typeof(string), 3, It.IsAny<object>(), context));
-            Assert.AreEqual(new[] { "1", null, "3" }, destinationList.ToArray());
+            mapper.Verify(c => c.MapObject(1, It.IsAny<object>(), null, context));
+            mapper.Verify(c => c.MapObject(null, It.IsAny<object>(), null, context), Times.Never());
+            mapper.Verify(c => c.MapObject(3, It.IsAny<object>(), null, context));
+            Assert.AreEqual(new []{"1",null,"3"}, destinationList.ToArray());
         }
 
         [Test]

@@ -25,24 +25,24 @@ namespace Transmute.Maps
             var fromEntryType = fromType.GetEnumerableElementType();
             var toEntryType = toType.GetEnumerableElementType();
             _mapper.RequireOneWayMap(fromEntryType, toEntryType, "MapArray");
-            return new ArrayMapperEntry(fromEntryType, toEntryType).Map;
+            return new ArrayMapperEntry(toEntryType, _mapper.GetMapper(fromEntryType, toEntryType)).Map;
         }
 
         private class ArrayMapperEntry
         {
-            private readonly Type _fromEntryType;
-            private readonly Type _toEntryType;
+            private readonly IMap<TContext> _typeMapper;
+            private readonly Type _toType;
 
-            public ArrayMapperEntry(Type fromEntryType, Type toEntryType)
+            public ArrayMapperEntry(Type toType, IMap<TContext> typeMapper)
             {
-                _fromEntryType = fromEntryType;
-                _toEntryType = toEntryType;
+                _toType = toType;
+                _typeMapper = typeMapper;
             }
 
             public object Map(Type fromType, Type toType, object from, object to, IResourceMapper<TContext> mapper, TContext context)
             {
                 var toArray = (Array) to;
-                MapperUtils.CopyToArray((IEnumerable)from, ref toArray, _fromEntryType, _toEntryType, mapper, context);
+                MapperUtils.CopyToArray((IEnumerable)from, ref toArray, _toType, _typeMapper, mapper, context);
                 return toArray;
             }
         }
