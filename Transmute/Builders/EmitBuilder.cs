@@ -21,6 +21,7 @@ namespace Transmute.Builders
         private const string MapperField = "Mapper";
         private int _fieldIndex = 0;
         private readonly Dictionary<string, object> _constructorValues = new Dictionary<string, object>();
+        private readonly TypeDictionary<string> _converterFields = new TypeDictionary<string>();
         private readonly TypeBuilder _type;
 
         public EmitBuilder(IResourceMapper<TContext> mapper) : base(mapper)
@@ -46,14 +47,24 @@ namespace Transmute.Builders
             return convertMethod;
         }
 
-        private static MethodInfo GetConvertMethod()
+        private static Type GetMapType(Type from, Type to)
         {
-            return typeof(IResourceMapper<TContext>).GetMethods().First(m => m.Name == "Map" && m.GetParameters().Length == 3);
+            return typeof(IMap<,,>).MakeGenericType(from, to, typeof(TContext));
+        }
+
+        private static MethodInfo GetConvertMethod(Type from, Type to)
+        {
+            return GetMapType(from, to).GetMethod("Map");
         }
 
         private static MethodInfo GetConstructOrThrowMethod()
         {
             return typeof(IResourceMapper<TContext>).GetMethod("ConstructOrThrow");
+        }
+
+        private string GetFieldName(Type from, Type to)
+        {
+            return string.Format("{0}_{1}_{2}", from.Name, to.Name, _fieldIndex++);
         }
 
         private string GetFieldName<TFrom, TTo>()
@@ -69,6 +80,19 @@ namespace Transmute.Builders
             {
                 _type.GetField(entry.Key).SetValue(null, entry.Value);
             }
+        }
+
+        private string GetOrCreateMapper(Type from, Type to)
+        {
+            string converter;
+            if(!_converterFields.TryGetValue(from, to, out converter))
+            {
+                converter = GetFieldName(from, to);
+                var funcField = _type.DefineField(converter, GetMapType(from, to),
+                                                 FieldAttributes.Public | FieldAttributes.Static);
+                _constructorValues.Add(converter, _mapper.GetMapper(from, to));
+            }
+            return converter;
         }
 
         public override MapperAction<TContext> BuildAction<TFrom, TTo>(IMappingCollection<TFrom, TTo, TContext> map)
@@ -134,8 +158,9 @@ namespace Transmute.Builders
                                         AstBuildHelper.ReadArgumentRA(2, typeof(TContext))});
                         if(setter.Remap)
                         {
-                            var remapMethod = AstBuildHelper.CallMethod(GetConvertMethod().MakeGenericMethod(setter.SourceType, setter.DestinationType),
-                                                        AstBuildHelper.ReadFieldRA(null, _type.GetField(MapperField)),
+                            string remapper = GetOrCreateMapper(setter.SourceType, setter.DestinationType);
+                            var remapMethod = AstBuildHelper.CallMethod(GetConvertMethod(setter.SourceType, setter.DestinationType),
+                                                        AstBuildHelper.ReadFieldRA(null, _type.GetField(remapper)),
                                                         new List<IAstStackItem>{
                                                             sourceFunc,
                                                             AstBuildHelper.ReadMembersChain(AstBuildHelper.ReadArgumentRA(1, typeof(TTo)), setter.DestinationMember),
@@ -159,8 +184,9 @@ namespace Transmute.Builders
                                                                          setter.SourceRoot.Union(setter.SourceMember).ToArray());
                         if(setter.Remap)
                         {
-                            var remapMethod = AstBuildHelper.CallMethod(GetConvertMethod().MakeGenericMethod(setter.SourceType, setter.DestinationType),
-                                                        AstBuildHelper.ReadFieldRA(null, _type.GetField(MapperField)),
+                            string remapper = GetOrCreateMapper(setter.SourceType, setter.DestinationType);
+                            var remapMethod = AstBuildHelper.CallMethod(GetConvertMethod(setter.SourceType, setter.DestinationType),
+                                                        AstBuildHelper.ReadFieldRA(null, _type.GetField(remapper)),
                                                         new List<IAstStackItem>{
                                                             sourceMember,
                                                             AstBuildHelper.ReadMembersChain(AstBuildHelper.ReadArgumentRA(1, typeof(TTo)), setter.DestinationMember),
