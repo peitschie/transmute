@@ -16,13 +16,13 @@ using EmitMapper.AST.Nodes;
 using EmitMapper.AST.Interfaces;
 namespace Transmute.Builders
 {
-    public class DynamicMethodBuilder<TContext> : AbstractBuilder<TContext>
+    public class EmitBuilder<TContext> : AbstractBuilder<TContext>
     {
         private int _fieldIndex = 0;
         private readonly Dictionary<string, object> _constructorValues = new Dictionary<string, object>();
         private readonly TypeBuilder _type;
 
-        public DynamicMethodBuilder(IResourceMapper<TContext> mapper) : base(mapper)
+        public EmitBuilder(IResourceMapper<TContext> mapper) : base(mapper)
         {
             _type = DynamicAssemblyManager.DefineMapperType("ResourceMapper");
         }
