@@ -515,7 +515,7 @@ namespace Transmute.Tests
             bool registerCalled = false;
             _mapper.RegisterOneWayMapping<List<int>, List<int>>(mapping =>
                 {
-                    mapping.Set(to => to.Capacity, (from, to, mapper, context) => { registerCalled = true; return 10; });
+                    mapping.Set(to => to.Capacity, (from, to, context) => { registerCalled = true; return 10; });
                     mapping.IgnoreUnmapped();
                 });
             _mapper.InitializeMap();
@@ -680,7 +680,7 @@ namespace Transmute.Tests
 
         public MapperAction<object> GetMapper(Type fromType, Type toType)
         {
-            return (tfrom, tto, from, to, mapper, context) => { throw new NotImplementedException(); };
+            return (from, to, context) => { throw new NotImplementedException(); };
         }
     }
 

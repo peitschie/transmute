@@ -6,7 +6,7 @@ namespace Transmute.EmitHelper
     public sealed class MyClass
     {
         public static Func<int> Lambda;
-        public static MemberSource<object> SourceWithEnum_DestWithInt_0 = (from, to, mapper, context) => ((SourceWithEnum)from).Enum;
+        public static MapperAction<object> SourceWithEnum_DestWithInt_0 = (from, to, context) => ((SourceWithEnum)from).Enum;
 
         public static void Convert(SourceObject source, DestinationObject destination)
         {
@@ -27,7 +27,7 @@ namespace Transmute.EmitHelper
                                                               IResourceMapper<object> mapper, object context)
         {
             destination = destination ?? new DestWithInt();
-            destination.Enum = mapper.Map(SourceWithEnum_DestWithInt_0(source, destination, mapper, context), destination.Enum, context);
+            destination.Enum = mapper.Map(SourceWithEnum_DestWithInt_0(source, destination, context), destination.Enum, context);
         }
     }
 }

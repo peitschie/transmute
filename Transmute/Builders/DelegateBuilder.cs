@@ -32,7 +32,7 @@ namespace Transmute.Builders
                 {
                     _mapper.RequireOneWayMap(setter.SourceType, setter.DestinationType, typeof(TFrom), typeof(TTo));
                 }
-                var toSetter = setter.DestinationMember.CreateConstructingAccessorChain<TContext>();
+                var toSetter = setter.DestinationMember.CreateConstructingAccessorChain<TContext>(_mapper);
                 var toAccessor = MapperUtils.CreateAccessorChain(setter.DestinationMember);
                 switch(setter.SourceObjectType)
                 {
@@ -40,16 +40,15 @@ namespace Transmute.Builders
                         if(setter.Remap)
                         {
                             var remapper = _mapper.GetMapper(setter.SourceType, setter.DestinationType);
-                            action += (tfrom, tto, from, to, mapper, context) => {
+                            action += (from, to, context) => {
                                 var dest = toAccessor.Get(to);
-                                toSetter(to, remapper.MapObject(((MemberSource<TContext>)setter.SourceFunc)(from, to, mapper, context),
-                                               dest, mapper, context), mapper, context);
+                                toSetter(to, remapper.MapObject(((MapperAction<TContext>)setter.SourceFunc)(from, to, context),
+                                               dest, context), context);
                             };
                         }
                         else
                         {
-                            action += (tfrom, tto, from, to, mapper, context) =>
-                                toSetter(to, ((MemberSource<TContext>)setter.SourceFunc)(from, to, mapper, context), mapper, context);
+                            action += (from, to, context) => toSetter(to, ((MapperAction<TContext>)setter.SourceFunc)(from, to, context), context);
                         }
                         break;
                     case MemberEntryType.Member:
@@ -57,13 +56,11 @@ namespace Transmute.Builders
                         if(setter.Remap)
                         {
                             var remapper = _mapper.GetMapper(setter.SourceType, setter.DestinationType);
-                            action += (tfrom, tto, from, to, mapper, context) =>
-                                toSetter(to, remapper.MapObject(fromAccessor.Get(from), toAccessor.Get(to), mapper, context), mapper, context);
+                            action += (from, to, context) => toSetter(to, remapper.MapObject(fromAccessor.Get(from), toAccessor.Get(to), context), context);
                         }
                         else
                         {
-                            action += (tfrom, tto, from, to, mapper, context) =>
-                                toSetter(to, fromAccessor.Get(from), mapper, context);
+                            action += (from, to, context) => toSetter(to, fromAccessor.Get(from), context);
                         }
                         break;
                     default:
@@ -73,25 +70,25 @@ namespace Transmute.Builders
 
             if(action == null)
             {
-                return (tfrom, tto, from, to, mapper, context) => to;
+                return (from, to, context) => to;
             }
             else if(map.UpdatesContext)
             {
-                return (tfrom, tto, from, to, mapper, context) =>
+                return (from, to, context) =>
                     {
                         if (to == null)
-                            to = mapper.ConstructOrThrow(tto);
-                        action(tfrom, tto, from, to, mapper, map.ContextUpdater(from, to, mapper, context));
+                            to = _mapper.ConstructOrThrow(typeof(TTo));
+                        action(from, to, map.ContextUpdater(from, to, context));
                         return to;
                     };
             }
             else
             {
-                return (tfrom, tto, from, to, mapper, context) =>
+                return (from, to, context) =>
                     {
                         if (to == null)
-                            to = mapper.ConstructOrThrow(tto);
-                        action(tfrom, tto, from, to, mapper, context);
+                            to = _mapper.ConstructOrThrow(typeof(TTo));
+                        action(from, to, context);
                         return to;
                     };
             }

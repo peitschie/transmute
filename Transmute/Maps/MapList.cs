@@ -43,7 +43,7 @@ namespace Transmute.Maps
                 _constructor = constructor;
             }
 
-            public object Map(Type fromType, Type toType, object from, object to, IResourceMapper<TContext> mapper, TContext context)
+            public object Map(object from, object to, TContext context)
             {
                 if (to == null)
                 {
@@ -53,7 +53,7 @@ namespace Transmute.Maps
                 var toList = (IList)to;
                 toList.Clear();
 
-                MapperUtils.CopyToList((IEnumerable)from, toList, _typeMapper, mapper, context);
+                MapperUtils.CopyToList((IEnumerable)from, toList, _typeMapper, context);
 
                 return to;   
             }

@@ -19,7 +19,7 @@ namespace Transmute.Maps
 
         public MapperAction<TContext> GetMapper(Type fromType, Type toType)
         {
-            return (tfrom, tto, from, to, mapper, context) => from;
+            return (from, to, context) => from;
         }
     }
 }

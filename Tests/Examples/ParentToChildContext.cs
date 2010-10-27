@@ -58,11 +58,11 @@ namespace Transmute.Tests.Examples
             var mapper = new ResourceMapper<SimpleDictionaryContext>();
             mapper.RegisterOneWayMapping<SourceEntity, DestEntity>(mapping =>
             {
-                mapping.SetChildContext((from, to, map, context) => context.Set("ParentVariable", from.Id));
+                mapping.SetChildContext((from, to, context) => context.Set("ParentVariable", from.Id));
             });
             mapper.RegisterOneWayMapping<ChildEntity, ChildEntity>(mapping =>
             {
-                mapping.Set(to => to.ParentId, (from, to, map, context) => context.Get<int>("ParentVariable"));
+                mapping.Set(to => to.ParentId, (from, to, context) => context.Get<int>("ParentVariable"));
             });
             mapper.InitializeMap();
 

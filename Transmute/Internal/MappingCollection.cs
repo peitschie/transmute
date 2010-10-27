@@ -39,7 +39,7 @@ namespace Transmute.Internal
         public IAvailablePropertiesClass Unmapped { get { return _unmapped; } }
         public IEnumerable<MemberEntry> Setters { get { return _setters.Where(m => m.IsMapped).OrderBy(m => m.SetOrder); } }
         public bool UpdatesContext { get { return ContextUpdater != null; } }
-        public Func<object, object, IResourceMapper<TContext>, TContext, TContext> ContextUpdater { get; private set; }
+        public Func<object, object, TContext, TContext> ContextUpdater { get; private set; }
 
         public MappingCollection(IResourceMapper<TContext> mapper)
             : this(mapper, new MemberInfo[0], new MemberInfo[0], new List<MemberEntry>(), 0)
@@ -103,7 +103,7 @@ namespace Transmute.Internal
             _setOrder = subMapper._setOrder;
         }
 
-        public IMappingCollection<TFrom, TTo, TContext> SetMember(MemberInfo[] member, MemberSource<TContext> getter)
+        public IMappingCollection<TFrom, TTo, TContext> SetMember(MemberInfo[] member, MapperAction<TContext> getter)
         {
             if(member == null)
                 throw new ArgumentNullException("member");
@@ -120,7 +120,7 @@ namespace Transmute.Internal
             return this;
         }
 
-        public IMappingCollection<TFrom, TTo, TContext> SetMember(MemberInfo to, MemberSource<TContext> getter)
+        public IMappingCollection<TFrom, TTo, TContext> SetMember(MemberInfo to, MapperAction<TContext> getter)
         {
             return SetMember(new[] { to }, getter);
         }
@@ -175,7 +175,7 @@ namespace Transmute.Internal
             }
             var setter = MapEntry(toChain);
             setter.DestinationType = typeof(TPropertyType);
-            setter.SourceFunc = (MemberSource<TContext>)((from, to, mapper, context) => getter());
+            setter.SourceFunc = (MapperAction<TContext>)((from, to, context) => getter());
             setter.SourceType = typeof(TGetterType);
             setter.SourceObjectType = MemberEntryType.Function;
             setter.Remap = remap ?? RequiresRemappingByDefault(setter.DestinationType, setter.SourceType, true);
@@ -188,14 +188,14 @@ namespace Transmute.Internal
 
         public IMappingCollection<TFrom, TTo, TContext> Set<TPropertyType>(
             Expression<Func<TTo, TPropertyType>> toExpression, 
-            Func<TFrom, TTo, IResourceMapper<TContext>, TContext, TPropertyType> getter)
+            Func<TFrom, TTo, TContext, TPropertyType> getter)
         {
             return Set(toExpression, getter, false);
         }
 
         public IMappingCollection<TFrom, TTo, TContext> Set<TPropertyType, TGetterType>(
             Expression<Func<TTo, TPropertyType>> toExpression,
-            Func<TFrom, TTo, IResourceMapper<TContext>, TContext, TGetterType> getter, bool? remap=null)
+            Func<TFrom, TTo, TContext, TGetterType> getter, bool? remap=null)
         {
             var toChain = MemberExpressions.GetExpressionChain(toExpression);
             if(!toChain.Last().IsWritable())
@@ -204,7 +204,7 @@ namespace Transmute.Internal
             }
             var setter = MapEntry(toChain);
             setter.DestinationType = typeof(TPropertyType);
-            setter.SourceFunc = (MemberSource<TContext>)((from, to, mapper, context) => getter((TFrom)from, (TTo)to, mapper, context));
+            setter.SourceFunc = (MapperAction<TContext>)((from, to, context) => getter((TFrom)from, (TTo)to, context));
             setter.SourceType = typeof(TGetterType);
             setter.SourceObjectType = MemberEntryType.Function;
             setter.Remap = remap ?? RequiresRemappingByDefault(typeof(TPropertyType), typeof(TGetterType), true);
@@ -229,7 +229,7 @@ namespace Transmute.Internal
             catch (MemberExpressionException)
             {
                 var fromDelegate = fromExpression.Compile();
-                return Set(toExpression, (frm, t, mapper, context) => fromDelegate(frm), remap);
+                return Set(toExpression, (frm, t, context) => fromDelegate(frm), remap);
             }
         }
 
@@ -246,15 +246,15 @@ namespace Transmute.Internal
             return this;
         }
 
-        public IMappingCollection<TFrom, TTo, TContext> SetChildContext(Func<TFrom, TTo, IResourceMapper<TContext>, TContext, TContext> updateContext)
+        public IMappingCollection<TFrom, TTo, TContext> SetChildContext(Func<TFrom, TTo, TContext, TContext> updateContext)
         {
             if (typeof(ICloneable).IsAssignableFrom(typeof(TContext)))
             {
-                ContextUpdater = (from, to, mapper, context) => updateContext((TFrom) from, (TTo) to, mapper, (TContext) ((ICloneable) context).Clone());
+                ContextUpdater = (from, to, context) => updateContext((TFrom) from, (TTo) to, (TContext) ((ICloneable) context).Clone());
             }
             else if (typeof(TContext).IsValueType) // value types are immutable... so changing this value will not change the existing context
             {
-                ContextUpdater = (from, to, mapper, context) => updateContext((TFrom)from, (TTo)to, mapper, context);
+                ContextUpdater = (from, to, context) => updateContext((TFrom)from, (TTo)to, context);
             }
             else
             {

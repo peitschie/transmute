@@ -62,7 +62,7 @@ namespace Transmute.Tests.Maps
             var initializableMap = Map as IInitializableMap;
             if(initializableMap != null)
                 initializableMap.Initialize();
-            return (TTo)Map.GetMapper(typeof(TFrom), typeof(TTo)).Invoke(typeof(TFrom), typeof(TTo), from, to, ResourceMapper.Object, context);
+            return (TTo)Map.GetMapper(typeof(TFrom), typeof(TTo)).Invoke(from, to, context);
         }
     }
 }

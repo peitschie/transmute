@@ -39,10 +39,10 @@ namespace Transmute.Maps
                 _typeMapper = typeMapper;
             }
 
-            public object Map(Type fromType, Type toType, object from, object to, IResourceMapper<TContext> mapper, TContext context)
+            public object Map(object from, object to, TContext context)
             {
                 var toArray = (Array) to;
-                MapperUtils.CopyToArray((IEnumerable)from, ref toArray, _toType, _typeMapper, mapper, context);
+                MapperUtils.CopyToArray((IEnumerable)from, ref toArray, _toType, _typeMapper, context);
                 return toArray;
             }
         }

@@ -118,14 +118,14 @@ namespace Transmute.Tests.Internal.Utils
             var context = new object();
             var mapper = new Mock<IMap<object>>();
             mapper.Setup(
-                c => c.MapObject(It.IsAny<object>(), It.IsAny<object>(), It.IsAny<IResourceMapper<object>>(), It.IsAny<object>()))
-                .Returns<object, object, IResourceMapper<object>, object>((from, to, mappr, ctx) => from.ToString());
+                c => c.MapObject(It.IsAny<object>(), It.IsAny<object>(), It.IsAny<object>()))
+                .Returns<object, object, object>((from, to, ctx) => from.ToString());
             var destinationList = new List<string>();
-            MapperUtils.CopyToList(new []{1,2,3}, destinationList, mapper.Object, null, context);
+            MapperUtils.CopyToList(new []{1,2,3}, destinationList, mapper.Object, context);
 
-            mapper.Verify(c => c.MapObject(1, It.IsAny<object>(), null, context));
-            mapper.Verify(c => c.MapObject(2, It.IsAny<object>(), null, context));
-            mapper.Verify(c => c.MapObject(3, It.IsAny<object>(), null, context));
+            mapper.Verify(c => c.MapObject(1, It.IsAny<object>(), context));
+            mapper.Verify(c => c.MapObject(2, It.IsAny<object>(), context));
+            mapper.Verify(c => c.MapObject(3, It.IsAny<object>(), context));
             Assert.AreEqual(new []{"1","2","3"}, destinationList.ToArray());
         }
 
@@ -135,14 +135,14 @@ namespace Transmute.Tests.Internal.Utils
             var context = new object();
             var mapper = new Mock<IMap<object>>();
             mapper.Setup(
-                c => c.MapObject(It.IsAny<object>(), It.IsAny<object>(), It.IsAny<IResourceMapper<object>>(), It.IsAny<object>()))
-                .Returns<object, object, IResourceMapper<object>, object>((from, to, mappr, ctx) => from == null ? null : from.ToString());
+                c => c.MapObject(It.IsAny<object>(), It.IsAny<object>(), It.IsAny<object>()))
+                .Returns<object, object, object>((from, to, ctx) => from == null ? null : from.ToString());
             var destinationList = new List<string>();
-            MapperUtils.CopyToList(new int?[] { 1, null, 3 }, destinationList, mapper.Object, null, context);
+            MapperUtils.CopyToList(new int?[] { 1, null, 3 }, destinationList, mapper.Object, context);
 
-            mapper.Verify(c => c.MapObject(1, It.IsAny<object>(), null, context));
-            mapper.Verify(c => c.MapObject(null, It.IsAny<object>(), null, context), Times.Never());
-            mapper.Verify(c => c.MapObject(3, It.IsAny<object>(), null, context));
+            mapper.Verify(c => c.MapObject(1, It.IsAny<object>(), context));
+            mapper.Verify(c => c.MapObject(null, It.IsAny<object>(), context), Times.Never());
+            mapper.Verify(c => c.MapObject(3, It.IsAny<object>(), context));
             Assert.AreEqual(new []{"1",null,"3"}, destinationList.ToArray());
         }
 
@@ -185,11 +185,11 @@ namespace Transmute.Tests.Internal.Utils
         {
             var resourceMapper = new ResourceMapper<object>();
             resourceMapper.InitializeMap();
-            var chain = MapperUtils.CreateConstructingAccessorChain<object>(MemberExpressions.GetExpressionChain<ClassWithSeveralPropertiesDest>(c => c.Child.String));
+            var chain = MapperUtils.CreateConstructingAccessorChain<object>(MemberExpressions.GetExpressionChain<ClassWithSeveralPropertiesDest>(c => c.Child.String), resourceMapper);
             Assert.IsNotNull(chain);
             var destination = new ClassWithSeveralPropertiesDest();
             const string child = "teststring";
-            chain(destination, child, resourceMapper, null);
+            chain(destination, child, null);
             Assert.AreSame(child, destination.Child.String);
         }
 
@@ -198,11 +198,11 @@ namespace Transmute.Tests.Internal.Utils
         {
             var resourceMapper = new ResourceMapper<object>();
             resourceMapper.InitializeMap();
-            var chain = MapperUtils.CreateConstructingAccessorChain<object>(MemberExpressions.GetExpressionChain<DeeperClass>(c => c.DeepClass.Child.String));
+            var chain = MapperUtils.CreateConstructingAccessorChain<object>(MemberExpressions.GetExpressionChain<DeeperClass>(c => c.DeepClass.Child.String), resourceMapper);
             Assert.IsNotNull(chain);
             var destination = new DeeperClass();
             const string child = "teststring";
-            chain(destination, child, resourceMapper, null);
+            chain(destination, child, null);
             Assert.AreSame(child, destination.DeepClass.Child.String);
         }
 

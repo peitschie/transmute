@@ -35,7 +35,7 @@ namespace Transmute.Tests.Integration
         {
             _resourceMapper.ConvertUsing((CustomEnum1 v) => (int)v);
             _resourceMapper.RegisterOneWayMapping<SourceWithEnum, DestWithInt>(
-                mapping => mapping.Set(to => to.Enum, (from, to, mapper, context) => from.Enum, true)
+                mapping => mapping.Set(to => to.Enum, (from, to, context) => from.Enum, true)
             );
             _resourceMapper.InitializeMap();
             Assert.AreEqual(1, _resourceMapper.Map<SourceWithEnum, DestWithInt>(new SourceWithEnum{Enum = CustomEnum1.Value2}, null).Enum);

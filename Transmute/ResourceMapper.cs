@@ -39,8 +39,8 @@ namespace Transmute
                     _builder = new DelegateBuilder<TContext>(this);
                     break;
                 case MapBuilder.Emit:
-                    
-                    _builder = new DynamicMethodBuilder<TContext>(this);
+                    _builder = new DelegateBuilder<TContext>(this);
+                    // _builder = new EmitBuilder<TContext>(this); - Broken for now
                     break;
                 default:
                     throw new ArgumentOutOfRangeException("builderType");
@@ -95,14 +95,14 @@ namespace Transmute
         #region ConvertUsing
         public void ConvertUsing<TFrom, TTo>(Func<TFrom, TTo> convert)
         {
-            ConvertUsing<TFrom, TTo>((from, to, mapper, context) => convert(from));
+            ConvertUsing<TFrom, TTo>((from, to, context) => convert(from));
         }
 
-        public void ConvertUsing<TFrom, TTo>(Func<TFrom, TTo, IResourceMapper<TContext>, TContext, TTo> convert)
+        public void ConvertUsing<TFrom, TTo>(Func<TFrom, TTo, TContext, TTo> convert)
         {
             AssertIsNotInitialized();
             AssertNoExistingMaps(typeof(TFrom), typeof(TTo));
-            MapperAction<TContext> mapperAction = (tf, tt, from, to, mapper, context) => convert((TFrom)from, (TTo)to, mapper, context);
+            MapperAction<TContext> mapperAction = (from, to, context) => convert((TFrom)from, (TTo)to, context);
             _mapCache.Add(typeof(TFrom), typeof(TTo), mapperAction);
             SetMapper(typeof(TFrom), typeof(TTo), mapperAction);
             if(_diagnosticsEnabled)
@@ -111,14 +111,14 @@ namespace Transmute
 
         public void ConvertUsing(Type from, Type to, Func<object, object> convert)
         {
-            ConvertUsing(from, to, (ofrom, oto, mapper, context) => convert(ofrom));
+            ConvertUsing(from, to, (ofrom, oto, context) => convert(ofrom));
         }
 
-        public void ConvertUsing(Type from, Type to, Func<object, object, IResourceMapper<TContext>, TContext, object> convert)
+        public void ConvertUsing(Type from, Type to, Func<object, object, TContext, object> convert)
         {
             AssertIsNotInitialized();
             AssertNoExistingMaps(from, to);
-            MapperAction<TContext> mapperAction = (tf, tt, ofrom, oto, mapper, context) => convert(ofrom, oto, mapper, context);
+            MapperAction<TContext> mapperAction = (ofrom, oto, context) => convert(ofrom, oto, context);
             _mapCache.Add(from, to, mapperAction);
             SetMapper(from, to, mapperAction);
             if(_diagnosticsEnabled)
@@ -333,7 +333,7 @@ namespace Transmute
                 return to;
             }
             var setter = GetMapperFor(fromType, toType);
-            to = setter(fromType, toType, from, to, this, context);
+            to = setter(from, to, context);
             return to;
         }
 
@@ -381,8 +381,7 @@ namespace Transmute
 
         private void InternalSetMapper<TFrom, TTo>(MapperAction<TContext> action)
         {
-            ((FuncBasedMap<TFrom, TTo, TContext>)GetMapper<TFrom, TTo>()).ConvertMethod =
-                (from, to, mapper, context) => (TTo)action(typeof(TFrom), typeof(TTo), from, to, mapper, context);
+            ((FuncBasedMap<TFrom, TTo, TContext>)GetMapper<TFrom, TTo>()).ConvertMethod = (from, to, context) => (TTo)action(from, to, context);
         }
 
         private void SetMapper(Type from, Type to, MapperAction<TContext> action)

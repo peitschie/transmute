@@ -21,8 +21,8 @@ namespace Transmute.Maps
         {
             var toNullableType = toType.GetGenericArguments()[0];
             _mapper.RequireOneWayMap(fromType, toNullableType, "MapNonNullableToNullable");
-
-            return (tfrom, tto, from, to, mapper, context) => mapper.Map(tfrom, toNullableType, from, to, context);
+            var nonNullToNullMapper = _mapper.GetMapper(fromType, toNullableType);
+            return (from, to, context) => nonNullToNullMapper.MapObject(from, to, context);
         }
     }
 }

@@ -84,7 +84,7 @@ namespace Transmute.Tests.Maps
             Map.Initialize();
             var mapper = Map.GetMapper(typeof (ClassWithSeveralPropertiesSrc), typeof (ClassWithSeveralPropertiesDest));
             Assert.IsNotNull(mapper);
-            Assert.DoesNotThrow(() => mapper.Invoke(null, null, null, new object(), null, null));
+            Assert.DoesNotThrow(() => mapper.Invoke(null, new object(), null));
         }
 
         [Test]
@@ -118,8 +118,8 @@ namespace Transmute.Tests.Maps
             public override void OverrideMapping(IMappingCollection<ClassWithSeveralPropertiesSrc, ClassWithSeveralPropertiesDest, CloneableTestContext> mapping)
             {
                 base.OverrideMapping(mapping);
-                mapping.SetChildContext((from, to, mapper, context) => context);
-                mapping.Set(to => to.Child, (from, to, mapper, context) =>
+                mapping.SetChildContext((from, to, context) => context);
+                mapping.Set(to => to.Child, (from, to, context) =>
                     {
                         Assert.AreNotSame(_originalContext, context);
                         return null;

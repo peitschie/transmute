@@ -43,7 +43,7 @@ namespace Transmute.Tests.Internal
         public void Set_MemberInfo_RemovesFromAvailableDestionation_AddsToSetters()
         {
             var member = GetDestInfo(c => c.Property1);
-            _collection.SetMember(member, (from, to, mapper, context) => 10);
+            _collection.SetMember(member, (from, to, context) => 10);
             VerifySettersAndAvailable(member);
         }
 
@@ -98,7 +98,7 @@ namespace Transmute.Tests.Internal
         [Test]
         public void Set_ImplicitConvert_Expression_Int_To_NullableInt_ThrowsException()
         {
-            var exception = Assert.Throws<MemberMappingException>(() => _collection.Set(to => to.Property1, (from, to, mapper, context) => (int?) null, false));
+            var exception = Assert.Throws<MemberMappingException>(() => _collection.Set(to => to.Property1, (from, to, context) => (int?) null, false));
             Assert.AreEqual(typeof(ClassWithSeveralPropertiesSrcNullable), exception.From);
             Assert.AreEqual(typeof(ClassWithSeveralPropertiesDest), exception.To);
             Assert.IsTrue(exception.Message.Contains(typeof(int?).ToString()));
@@ -173,7 +173,7 @@ namespace Transmute.Tests.Internal
         public void Set_MemberInfo_To_MemberSource_ThrowsIfMemberIsNull()
         {
             Assert.Throws<ArgumentNullException>(() => _collection.SetMember((MemberInfo[])null,
-                (from, to, mapper, context) => GetSrcInfo(c1 => c1.Property1)));
+                (from, to, context) => GetSrcInfo(c1 => c1.Property1)));
         }
 
         [Test]
@@ -200,7 +200,7 @@ namespace Transmute.Tests.Internal
         [Test]
         public void Set_Expression_To_Func()
         {
-            _collection.Set(to => to.Property2, (from, to, mapper, context) => from.Property2+1);
+            _collection.Set(to => to.Property2, (from, to, context) => from.Property2+1);
             VerifySettersAndAvailable(GetDestInfo(c => c.Property2));
         }
 
@@ -221,14 +221,14 @@ namespace Transmute.Tests.Internal
         [Test]
         public void Set_Expression_To_Func_WithConversion()
         {
-            _collection.Set(to => to.Property2, (from, to, mapper, context) => (long)from.Property2+1, true);
+            _collection.Set(to => to.Property2, (from, to, context) => (long)from.Property2+1, true);
             VerifySettersAndAvailable(GetDestInfo(c => c.Property2));
         }
 
         [Test]
         public void Set_Expression_To_Func_NoConversion_IfTypesMatch()
         {
-            _collection.Set(to => to.Child, (from, to, mapper, context) => new ChildClass{String = "Hello!"});
+            _collection.Set(to => to.Child, (from, to, context) => new ChildClass{String = "Hello!"});
             VerifySettersAndAvailable(GetDestInfo(c => c.Child));
         }
 
@@ -322,31 +322,31 @@ namespace Transmute.Tests.Internal
         public void OverrideChildContext_ClassType_InvokesClone()
         {
             var testContext = new CloneableTestContext();
-            _collection.SetChildContext((from, to, mapper, context) =>
+            _collection.SetChildContext((from, to, context) =>
                 {
                     Assert.AreNotSame(testContext, context);
                     return context;
                 });
-            _collection.ContextUpdater(null, null, null, testContext);
+            _collection.ContextUpdater(null, null, testContext);
         }
 
         [Test]
         public void OverrideChildContext_ThrowsException_UnCloneableClass()
         {
             var collection = new MappingCollection<object, object, NonCloneableTestContext>(null);
-            Assert.Throws<InvalidOperationException>(() => collection.SetChildContext((from, to, mapper, context) => context));
+            Assert.Throws<InvalidOperationException>(() => collection.SetChildContext((from, to, context) => context));
         }
 
         [Test]
         public void OverrideChildContext_ValueType_ReturnsNewValue()
         {
             var collection = new MappingCollection<object, object, bool>(null);
-            collection.SetChildContext((from, to, mapper, context) =>
+            collection.SetChildContext((from, to, context) =>
             {
                 Assert.IsTrue(context);
                 return false;
             });
-            Assert.IsFalse(collection.ContextUpdater(null, null, null, true));
+            Assert.IsFalse(collection.ContextUpdater(null, null, true));
         }
 
         [Test]

@@ -26,12 +26,12 @@ namespace Transmute.Maps
             var toNullableType = toType.GetGenericArguments()[0];
             var fromNullableType = fromType.GetGenericArguments()[0];
             _mapper.RequireOneWayMap(fromNullableType, toNullableType, "MapNullableToNullable");
+            var nullableTypeMapper = _mapper.GetMapper(fromNullableType, toNullableType);
 
             return 
             (
-                (tfrom, tto, from, to, mapper, context) => 
-                    from == null ? null
-                    : mapper.Map(fromNullableType, toNullableType, from, to, context)
+                (from, to, context) =>
+                    from == null ? null : nullableTypeMapper.MapObject(from, to, context)
             );
         }
     }

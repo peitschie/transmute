@@ -24,7 +24,7 @@ namespace Transmute.Maps
 
         public MapperAction<TContext> GetMapper(Type fromType, Type toType)
         {
-            return (tFrom, tTo, from, to, mapper, context) => Enum.Parse(tTo, from.ToString(), true);
+            return (from, to, context) => Enum.Parse(toType, from.ToString(), true);
         }
 
         private static IEnumerable<string> GetNameList(Type enumType)

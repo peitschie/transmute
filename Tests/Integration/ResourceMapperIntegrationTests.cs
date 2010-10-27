@@ -25,7 +25,7 @@ namespace Transmute.Tests.Integration
             var domainClassObj = new DomainClassComplex();
             _mapper.RegisterOneWayMapping<ResourceClassSimple, DomainClassComplex>(mapping => {
                 mapping.Set(to => to.IntConversionProperty, from => ((InheritsFromResourceClassSimple)from).StringProperty);
-                mapping.Set(to => to.StringConversionProperty, (from, to, mapper, context) => ((InheritsFromResourceClassSimple)from).IntProperty);
+                mapping.Set(to => to.StringConversionProperty, (from, to, context) => ((InheritsFromResourceClassSimple)from).IntProperty);
                 mapping.Set(to => to.RecursiveExampleProperty, () => domainClassObj, false);
                 mapping.Set(to => to.ExamplePropertyList, from => new []{from});
                 mapping.Set(to => to.ExamplePropertyArray, from => new []{from});

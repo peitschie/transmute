@@ -36,11 +36,10 @@ namespace Transmute.Builders
         {
             var convertMethod = _type.DefineMethod(GetMethodName(from, to),
                                                           MethodAttributes.Public | MethodAttributes.Static, to,
-                                      new[] { from, to, typeof(IResourceMapper<TContext>), typeof(TContext) });
+                                      new[] { from, to, typeof(TContext) });
             convertMethod.DefineParameter(1, ParameterAttributes.None, "source");
             convertMethod.DefineParameter(2, ParameterAttributes.None, "destination");
-            convertMethod.DefineParameter(3, ParameterAttributes.None, "mapper");
-            convertMethod.DefineParameter(4, ParameterAttributes.None, "context");
+            convertMethod.DefineParameter(3, ParameterAttributes.None, "context");
             return convertMethod;
         }
 
@@ -123,7 +122,7 @@ namespace Transmute.Builders
 //                        var sourceFuncRoot = setter.SourceRoot.Length > 0 ?
 //                            AstBuildHelper.ReadMembersChain(AstBuildHelper.ReadArgumentRA(0, typeof(TFrom)), setter.SourceRoot)
 //                            : AstBuildHelper.ReadArgumentRV(0, typeof(TFrom));
-                        var method = funcField.FieldType.GetMethod("Invoke", new []{typeof(object), typeof(object), typeof(IResourceMapper<TContext>), typeof(TContext)});
+                        var method = funcField.FieldType.GetMethod("Invoke", new []{typeof(object), typeof(object), typeof(TContext)});
                         var sourceFunc = AstBuildHelper.CallMethod(
                                    method,
                                    AstBuildHelper.ReadFieldRA(null, _type.GetField(funcField.Name)),
@@ -186,15 +185,15 @@ namespace Transmute.Builders
 
             new AstReturn { returnValue = AstBuildHelper.ReadArgumentRV(1, typeof(TTo)), returnType = typeof(TTo)}.Compile(context);
             var name = convertMethod.Name;
-            Func<TFrom, TTo, IResourceMapper<TContext>, TContext, TTo> converter = null;
-            return (tfrom, tto, from, to, mapper, contxt) => {
+            Func<TFrom, TTo, TContext, TTo> converter = null;
+            return (from, to, contxt) => {
                 if(converter == null)
                 {
-                    converter = (Func<TFrom, TTo, IResourceMapper<TContext>, TContext, TTo>)Delegate.CreateDelegate(
-                                    typeof(Func<TFrom, TTo, IResourceMapper<TContext>, TContext, TTo>), null,
+                    converter = (Func<TFrom, TTo, TContext, TTo>)Delegate.CreateDelegate(
+                                    typeof(Func<TFrom, TTo, TContext, TTo>), null,
                                     _type.GetMethod(name));
                 }
-                return converter((TFrom)from, (TTo)to, (IResourceMapper<TContext>)mapper, (TContext)contxt);
+                return converter((TFrom)from, (TTo)to, (TContext)contxt);
             };
         }
     }

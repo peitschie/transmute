@@ -12,9 +12,9 @@ namespace Transmute
         object ConstructOrThrow(Type type);
 
         void ConvertUsing<TFrom, TTo>(Func<TFrom, TTo> convert);
-        void ConvertUsing<TFrom, TTo>(Func<TFrom, TTo, IResourceMapper<TContext>, TContext, TTo> convert);
+        void ConvertUsing<TFrom, TTo>(Func<TFrom, TTo, TContext, TTo> convert);
         void ConvertUsing(Type from, Type to, Func<object, object> convert);
-        void ConvertUsing(Type from, Type to, Func<object, object, IResourceMapper<TContext>, TContext, object> convert);
+        void ConvertUsing(Type from, Type to, Func<object, object, TContext, object> convert);
 
         void RequireOneWayMap(Type fromType, Type toType, Type fromParentType, Type toParentType);
         void RequireOneWayMap(Type fromType, Type toType, string description);

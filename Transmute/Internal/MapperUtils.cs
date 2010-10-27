@@ -76,7 +76,8 @@ namespace Transmute.Internal
             return new FuncBasedAccessor(getter, (target, value) => setter(target, value), members.Last().ReturnType(), members.First().ReflectedType);
         }
 
-        public static DestinationMemberSetter<TContext> CreateConstructingAccessorChain<TContext>(this IEnumerable<MemberInfo> members)
+        public static DestinationMemberSetter<TContext> CreateConstructingAccessorChain<TContext>(this IEnumerable<MemberInfo> members,
+                                                                                                  IResourceMapper<TContext> mapper)
         {
             if(members.Count() < 1)
                 throw new ArgumentException("Collection must have at least one member", "members");
@@ -90,7 +91,7 @@ namespace Transmute.Internal
                 // a = (((b = ((c = (d = 4)))) : Given a, get or create b and set this equal to c...
                 if (setter == null)
                 {
-                    setter = (target, value, mapper, context) =>
+                    setter = (target, value, context) =>
                     {
                         accessor.Set(target, value);
                         return target;
@@ -99,7 +100,7 @@ namespace Transmute.Internal
                 else
                 {
                     var localSetter = setter;
-                    setter = (target, value, mapper, context) =>
+                    setter = (target, value, context) =>
                         {
                             var destination = accessor.Get(target);
                             if(destination == null)
@@ -108,7 +109,7 @@ namespace Transmute.Internal
                                 accessor.Set(target, destination);
 
                             }
-                            return localSetter(destination, value, mapper, context);
+                            return localSetter(destination, value, context);
                         };
                 }
             }
@@ -120,13 +121,13 @@ namespace Transmute.Internal
             return CreateAccessorChain(member.GetExpressionChain());
         }
 
-        public static void CopyToList<TContext>(IEnumerable source, IList destination, IMap<TContext> mapper, IResourceMapper<TContext> obseleteMapper, TContext context)
+        public static void CopyToList<TContext>(IEnumerable source, IList destination, IMap<TContext> mapper, TContext context)
         {
             foreach (var fromEntry in source)
             {
                 if (fromEntry != null)
                 {
-                    var toEntry = mapper.MapObject(fromEntry, null, obseleteMapper, context);
+                    var toEntry = mapper.MapObject(fromEntry, null, context);
                     destination.Add(toEntry);
                 }
                 else
@@ -136,10 +137,10 @@ namespace Transmute.Internal
             }
         }
 
-        public static void CopyToArray<TContext>(IEnumerable source, ref Array destination, Type toEntryType, IMap<TContext> mapper, IResourceMapper<TContext> obseleteMapper, TContext context)
+        public static void CopyToArray<TContext>(IEnumerable source, ref Array destination, Type toEntryType, IMap<TContext> mapper, TContext context)
         {
             var toList = new List<object>();
-            CopyToList(source, toList, mapper, obseleteMapper, context);
+            CopyToList(source, toList, mapper, context);
 
             if (destination == null || destination.Length != toList.Count)
             {
