@@ -39,8 +39,7 @@ namespace Transmute
                     _builder = new DelegateBuilder<TContext>(this);
                     break;
                 case MapBuilder.Emit:
-                    _builder = new DelegateBuilder<TContext>(this);
-                    // _builder = new EmitBuilder<TContext>(this); - Broken for now
+                    _builder = new EmitBuilder<TContext>(this);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException("builderType");
