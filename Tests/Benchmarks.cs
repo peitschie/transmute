@@ -50,10 +50,10 @@ namespace Transmute.Tests
             */
         }
 
-        public double BenchmarkTransmute()
+        public double BenchmarkTransmute(MapBuilder builderType)
         {
             // Resource mapper
-            var mapper = new ResourceMapper<object>();
+            var mapper = new ResourceMapper<object>(builderType);
             mapper.LoadStandardConverters();
             mapper.RegisterOneWayMapping<ResourceClassComplex, DomainClassComplex>();
             mapper.RegisterOneWayMapping<ResourceClassSimple, DomainClassSimple>(mapping => mapping.Ignore(to => to.RandomProperty));
@@ -70,9 +70,16 @@ namespace Transmute.Tests
         }
 
         [Test]
-        public void Peform_Transmute_Benchmark()
+        public void Peform_Transmute_Benchmark_Delegate()
         {
-            var totalMs = BenchmarkTransmute();
+            var totalMs = BenchmarkTransmute(MapBuilder.Delegate);
+            Assert.Pass("Mapper Conversion -  Total elapsed time: {0}ms  Total conversions: {1}  Conversions: {2}/s".With(totalMs, Total, 100 * Total / totalMs));
+        }
+
+        [Test]
+        public void Peform_Transmute_Benchmark_Emit()
+        {
+            var totalMs = BenchmarkTransmute(MapBuilder.Emit);
             Assert.Pass("Mapper Conversion -  Total elapsed time: {0}ms  Total conversions: {1}  Conversions: {2}/s".With(totalMs, Total, 100 * Total / totalMs));
         }
 
