@@ -37,18 +37,18 @@ namespace Transmute.Builders
                 switch(setter.SourceObjectType)
                 {
                     case MemberEntryType.Function:
+                        var sourceFunc = (MapperAction<TContext>)setter.SourceFunc;
                         if(setter.Remap)
                         {
                             var remapper = _mapper.GetMapper(setter.SourceType, setter.DestinationType);
                             action += (from, to, context) => {
                                 var dest = toAccessor.Get(to);
-                                toSetter(to, remapper.MapObject(((MapperAction<TContext>)setter.SourceFunc)(from, to, context),
-                                               dest, context), context);
+                                toSetter(to, remapper.MapObject(sourceFunc(from, to, context), dest, context), context);
                             };
                         }
                         else
                         {
-                            action += (from, to, context) => toSetter(to, ((MapperAction<TContext>)setter.SourceFunc)(from, to, context), context);
+                            action += (from, to, context) => toSetter(to, sourceFunc(from, to, context), context);
                         }
                         break;
                     case MemberEntryType.Member:
