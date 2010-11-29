@@ -18,17 +18,17 @@ namespace Transmute.Builders
 {
     public class EmitBuilder<TContext> : AbstractBuilder<TContext>
     {
-        private const string MapperField = "Mapper";
+        private readonly FieldInfo _mapperField;
         private int _fieldIndex = 0;
         private readonly Dictionary<string, object> _constructorValues = new Dictionary<string, object>();
-        private readonly TypeDictionary<string> _converterFields = new TypeDictionary<string>();
+        private readonly TypeDictionary<FieldInfo> _converterFields = new TypeDictionary<FieldInfo>();
         private readonly TypeBuilder _type;
 
         public EmitBuilder(IResourceMapper<TContext> mapper) : base(mapper)
         {
             _type = DynamicAssemblyManager.DefineMapperType("ResourceMapper");
-            _type.DefineField(MapperField, typeof(IResourceMapper<TContext>), FieldAttributes.Public | FieldAttributes.Static);
-            _constructorValues.Add(MapperField, _mapper);
+            _mapperField = _type.DefineField("Mapper", typeof(IResourceMapper<TContext>), FieldAttributes.Public | FieldAttributes.Static);
+            _constructorValues.Add(_mapperField.Name, _mapper);
         }
 
         private static string GetMethodName(Type from, Type to)
@@ -82,15 +82,14 @@ namespace Transmute.Builders
             }
         }
 
-        private string GetOrCreateMapper(Type from, Type to)
+        private FieldInfo GetOrCreateMapper(Type from, Type to)
         {
-            string converter;
+            FieldInfo converter;
             if(!_converterFields.TryGetValue(from, to, out converter))
             {
-                converter = GetFieldName(from, to);
-                var funcField = _type.DefineField(converter, GetMapType(from, to),
+                converter = _type.DefineField(GetFieldName(from, to), GetMapType(from, to),
                                                  FieldAttributes.Public | FieldAttributes.Static);
-                _constructorValues.Add(converter, _mapper.GetMapper(from, to));
+                _constructorValues.Add(converter.Name, _mapper.GetMapper(from, to));
             }
             return converter;
         }
@@ -105,7 +104,7 @@ namespace Transmute.Builders
             new AstWriteArgument(1, typeof(TTo), new AstIfNull(
                 (IAstRef)AstBuildHelper.ReadArgumentRA(1, typeof(TTo)),
                 AstBuildHelper.CastClass(AstBuildHelper.CallMethod(GetConstructOrThrowMethod(),
-                    AstBuildHelper.ReadFieldRA(null, _type.GetField(MapperField)),
+                    AstBuildHelper.ReadFieldRA(null, _mapperField),
                     new List<IAstStackItem>{new AstTypeof{type = typeof(TTo)}}), typeof(TTo))
                 )).Compile(context);
 
@@ -123,7 +122,7 @@ namespace Transmute.Builders
 
                 var contextUpdater = AstBuildHelper.CallMethod(
                            method,
-                           AstBuildHelper.ReadFieldRA(null, _type.GetField(funcField.Name)),
+                           AstBuildHelper.ReadFieldRA(null, funcField),
                            new List<IAstStackItem>{
                                 AstBuildHelper.ReadArgumentRV(0, typeof(TFrom)),
                                 AstBuildHelper.ReadArgumentRA(1, typeof(TTo)),
@@ -151,16 +150,16 @@ namespace Transmute.Builders
                         var method = funcField.FieldType.GetMethod("Invoke", new []{typeof(object), typeof(object), typeof(TContext)});
                         var sourceFunc = AstBuildHelper.CallMethod(
                                    method,
-                                   AstBuildHelper.ReadFieldRA(null, _type.GetField(funcField.Name)),
+                                   AstBuildHelper.ReadFieldRA(null, funcField),
                                    new List<IAstStackItem>{
                                         AstBuildHelper.ReadArgumentRV(0, typeof(TFrom)),
                                         AstBuildHelper.ReadArgumentRA(1, typeof(TTo)),
                                         AstBuildHelper.ReadArgumentRA(2, typeof(TContext))});
                         if(setter.Remap)
                         {
-                            string remapper = GetOrCreateMapper(setter.SourceType, setter.DestinationType);
+                            var remapper = GetOrCreateMapper(setter.SourceType, setter.DestinationType);
                             var remapMethod = AstBuildHelper.CallMethod(GetConvertMethod(setter.SourceType, setter.DestinationType),
-                                                        AstBuildHelper.ReadFieldRA(null, _type.GetField(remapper)),
+                                                        AstBuildHelper.ReadFieldRA(null, remapper),
                                                         new List<IAstStackItem>{
                                                             sourceFunc,
                                                             AstBuildHelper.ReadMembersChain(AstBuildHelper.ReadArgumentRA(1, typeof(TTo)), setter.DestinationMember),
@@ -184,9 +183,9 @@ namespace Transmute.Builders
                                                                          setter.SourceRoot.Union(setter.SourceMember).ToArray());
                         if(setter.Remap)
                         {
-                            string remapper = GetOrCreateMapper(setter.SourceType, setter.DestinationType);
+                            var remapper = GetOrCreateMapper(setter.SourceType, setter.DestinationType);
                             var remapMethod = AstBuildHelper.CallMethod(GetConvertMethod(setter.SourceType, setter.DestinationType),
-                                                        AstBuildHelper.ReadFieldRA(null, _type.GetField(remapper)),
+                                                        AstBuildHelper.ReadFieldRA(null, remapper),
                                                         new List<IAstStackItem>{
                                                             sourceMember,
                                                             AstBuildHelper.ReadMembersChain(AstBuildHelper.ReadArgumentRA(1, typeof(TTo)), setter.DestinationMember),
@@ -206,7 +205,7 @@ namespace Transmute.Builders
                         }
                         break;
                     default:
-                        throw new ArgumentOutOfRangeException("MemberEntryType not supported");
+                        throw new ArgumentOutOfRangeException(setter.SourceObjectType.ToString(), "MemberEntryType not supported");
                 }
             }
 
