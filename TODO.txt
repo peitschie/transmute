@@ -1,8 +1,0 @@
-RequiresMappingByDefault - ensure logic remains constant
-Maps with no actual setters - null mappers?
-Mapping object to object - throw exception? Ignore by default?
-
-Questions
-===============
-* How do I ignore properties on a specific inherited type on everything that subclasses it
-* How do I ignore properties on a specific interface type on everything that implements it
